@@ -1,0 +1,493 @@
+\chapter{Algorithmes}
+\label{ch:algos}
+
+Nous implémentons une échelle d'algorithmes, des lignes de base aux techniques
+les plus avancées. Ils partagent une même interface et une même
+structure de graphe (\S\ref{sec:csr}), ce qui rend la comparaison équitable :
+seule change la stratégie d'exploration.
+
+\section{Vue d'ensemble}
+
+Les méthodes présentées ne sont pas une simple collection : elles forment une
+\emph{progression}, où chaque technique répond à une limite précise de la
+précédente, avec de plus en plus d'information et de structure. Cette lecture est
+d'autant plus naturelle que tous ces algorithmes se ramènent à un unique schéma,
+que nous présentons d'abord.
+
+\subsection{Un cadre commun : la recherche en meilleur d'abord}
+
+Presque tous les algorithmes de ce chapitre sont des variantes d'un même
+squelette, la \textbf{recherche en meilleur d'abord}
+(\emph{best-first search}) \citep{russell2010aima}. On maintient deux ensembles :
+la \emph{frontière} (ou liste ouverte) $O$ des nœuds découverts mais pas encore
+développés, et l'ensemble \emph{fermé} $C$ des nœuds déjà développés (« réglés »).
+À chaque itération, on extrait de $O$ le nœud de plus petite \emph{clé}
+$\kappa(v)$, on le marque fermé, puis on \emph{relâche} ses arcs sortants : pour
+chaque voisin $v$ de $u$, si le chemin passant par $u$ améliore la meilleure
+estimation connue de $v$, on met $v$ à jour et on l'insère (ou on le réordonne)
+dans $O$.
+
+\medskip
+
+Ce qui distingue les algorithmes, c'est uniquement le \textbf{choix de la clé}
+$\kappa$ (tableau~\ref{tab:cle}). Deux quantités reviennent partout : $g(v)$, le
+coût du meilleur chemin connu de la source $s$ jusqu'à $v$, et $h(v)$, une
+\emph{estimation} du coût restant de $v$ jusqu'à la cible $t$.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    Algorithme & Clé $\kappa(v)$ & Effet \\
+    \midrule
+    BFS       & profondeur (nombre d'arcs) & anneaux concentriques en nombre de sauts \\
+    DFS       & pile LIFO (pas de clé)     & plonge en profondeur \\
+    Dijkstra  & $g(v)$                     & disque uniforme autour de $s$ \\
+    Greedy    & $h(v)$                     & fonce vers $t$ (non optimal) \\
+    A*        & $g(v) + h(v)$              & ellipse orientée vers $t$ \\
+    ALT       & $g(v) + h_{\text{ALT}}(v)$ & mince corridor le long de la route \\
+    \bottomrule
+  \end{tabular}
+  \caption{Tous ces algorithmes sont une recherche en meilleur d'abord ; seule
+  change la clé de priorité.}
+  \label{tab:cle}
+\end{table}
+
+Le fil directeur théorique tient en une phrase : \emph{ajouter de l'information}
+(une heuristique admissible plus forte), \emph{de la structure} (recherche
+bidirectionnelle) et \emph{du pré-calcul} (landmarks, drapeaux, raccourcis)
+réduit l'exploration \emph{sans} sacrifier l'optimalité. Le
+tableau~\ref{tab:algos-panorama} récapitule les propriétés de chacun.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{@{}lllc c@{}}
+    \toprule
+    Algorithme & Famille & Idée clé & Optimal & Fondamental \\
+    \midrule
+    BFS            & non informé      & par nombre d'arcs        & non\textsuperscript{*} & oui \\
+    DFS            & non informé      & en profondeur            & non & oui \\
+    Dijkstra       & non informé      & plus petit $g$           & oui & oui \\
+    Greedy         & informé          & plus petit $h$           & non & oui \\
+    A*             & informé          & $f = g + h$              & oui & oui \\
+    ALT            & informé          & landmarks + inég.\ triangulaire & oui & oui \\
+    Bi-Dijkstra    & bidirectionnel   & deux fronts              & oui & non \\
+    Bi-ALT         & bidirectionnel   & deux fronts + landmarks  & oui & non \\
+    Arc Flags      & dirigé (pré-calc) & drapeaux par région     & oui & non \\
+    CH             & hiérarchique     & raccourcis + contraction & oui & non \\
+    \bottomrule
+  \end{tabular}
+
+  \smallskip
+  {\footnotesize \textsuperscript{*}BFS est optimal en \emph{nombre d'arcs}, pas
+  en distance métrique.}
+  \caption{Panorama des algorithmes implémentés.}
+  \label{tab:algos-panorama}
+\end{table}
+
+\section{Lignes de base non informées : BFS, DFS, Dijkstra}
+\label{sec:baselines}
+
+Les algorithmes \emph{non informés} n'utilisent aucune connaissance de la
+position de la cible : ils explorent en aveugle. Ils fixent la ligne de base que
+les méthodes informées devront battre.
+
+\subsection{BFS et DFS}
+Le \textbf{parcours en largeur} (BFS) développe les nœuds par nombre d'arcs
+croissant, à l'aide d'une file FIFO : il visite d'abord tous les voisins directs
+de $s$, puis les voisins de ceux-ci, etc. Il rend donc le chemin comportant le
+\emph{moins d'arcs}. C'est optimal \emph{si et seulement si} tous les arcs ont le
+même coût, hypothèse fausse sur une route, où un arc peut mesurer 10~m ou
+2~km. Sur notre réseau, le chemin « le moins d'arcs » de BFS est ainsi bien plus
+long en \emph{mètres} que le vrai plus court chemin (\S\ref{sec:bench}) : c'est la
+motivation concrète de la pondération des arcs. Sa complexité est $O(|V| + |E|)$.
+
+\medskip
+
+Le \textbf{parcours en profondeur} (DFS) utilise au contraire une pile LIFO : il
+s'enfonce le plus loin possible avant de revenir en arrière. Il trouve \emph{un}
+chemin, mais sans aucune garantie sur sa longueur : en pratique un chemin
+absurdement long, qui serpente à travers toute la carte. Sa complexité est
+$O(|V| + |E|)$, comme BFS. Nous l'incluons comme contre-exemple : il illustre
+qu'explorer sans notion de coût ne résout pas le problème.
+
+\subsection{Dijkstra}
+\label{sec:dijkstra}
+
+L'algorithme de Dijkstra \citep{dijkstra1959} est le membre du cadre commun dont
+la clé est le coût déjà parcouru, $\kappa(v) = g(v)$ : il développe toujours
+« la feuille de plus petit chemin parcouru ». Concrètement, on initialise
+$g(s) = 0$ et $g(v) = +\infty$ pour tout autre nœud, puis on répète : extraire de
+la frontière le nœud $u$ de plus petit $g$, le fermer, et \textbf{relâcher}
+chacun de ses arcs $(u,v)$ selon
+\[
+  \text{si } g(u) + w(u,v) < g(v)
+  \quad\text{alors}\quad
+  g(v) \gets g(u) + w(u,v),\ \ \text{parent}(v) \gets u .
+\]
+Un arrêt anticipé est possible : dès que la cible $t$ est extraite, sa distance
+est définitive et l'on peut s'arrêter. Le plus court chemin se reconstruit en
+remontant les pointeurs \emph{parent} de $t$ jusqu'à $s$.
+
+\medskip
+
+La correction repose sur la positivité des poids (\S\ref{sec:espace-etats}), qui
+garantit l'invariant fondamental de l'algorithme.
+
+\paragraph{Invariant de Dijkstra.}
+Si tous les poids sont positifs, alors au moment où un nœud $u$ est extrait de la
+frontière, $g(u) = d(s,u)$ : sa distance est déjà optimale et ne sera plus jamais
+améliorée.
+
+\medskip
+
+Intuitivement, comme on extrait toujours le plus petit $g$ et que relâcher un arc
+ne peut qu'\emph{augmenter} le coût (poids positif), aucun chemin découvert plus
+tard ne pourra revenir à $u$ à moindre coût. Avec un tas binaire comme frontière,
+la complexité est $O\big((|V| + |E|)\log |V|\big)$.
+
+\medskip
+
+Dijkstra est optimal, mais reste \textbf{non informé} : ignorant la direction de
+$t$, il fait croître une boule uniforme autour de $s$, un disque sur la carte.
+Le nombre de nœuds réglés croît donc à peu près comme le \emph{carré} de la
+distance source--cible. C'est notre référence, à la fois pour la correction (tout
+algorithme optimal doit rendre exactement $d(s,t)$) et pour le coût (le nombre de
+nœuds explorés que les méthodes informées cherchent à réduire).
+
+\section{Greedy Best-First Search}
+\label{sec:greedy}
+
+La recherche gloutonne \citep{russell2010aima} est l'autre extrême : sa clé est
+la \emph{seule} heuristique, $\kappa(v) = h(v)$. Elle développe à chaque étape le
+nœud qui \emph{semble} le plus proche du but, et fonce donc en ligne quasi droite
+vers $t$ en ne réglant que très peu de nœuds. Mais en ignorant $g$, elle n'a
+aucune garantie d'optimalité : elle peut s'engager dans une branche qui pointe
+vers la cible tout en étant un long détour (une impasse géographique, un
+cul-de-sac séparé de $t$ par une voie ferrée), sans jamais reconsidérer ce choix.
+
+\medskip
+
+Nous l'incluons pour rendre \emph{concret} le compromis vitesse/qualité : dans
+notre banc d'essai, Greedy explore environ 50 fois moins de nœuds que Dijkstra,
+mais ses routes sont en moyenne \textbf{79\,\% plus longues}
+(\S\ref{sec:bench}). C'est aussi la réponse à la question « pourquoi ne
+retient-on pas Greedy ? » : il appartient à une autre classe de qualité : il ne
+résout pas le problème du plus court chemin \emph{exact}, mais celui du chemin
+« trouvé vite ».
+
+\section{A* avec l'heuristique du vol d'oiseau}
+\label{sec:astar}
+
+A* \citep{hart1968astar} est le point d'équilibre entre Dijkstra et Greedy : sa
+clé combine les deux quantités,
+\[
+  f(v) = g(v) + h(v),
+\]
+où l'on rappelle que $g(v)$ est le coût \emph{déjà} parcouru de $s$ à $v$ (une
+valeur exacte, connue), et $h(v)$ une \emph{estimation} du coût \emph{restant} de
+$v$ à $t$. La somme $f(v)$ est donc une estimation du coût total d'un chemin
+$s \to t$ passant par $v$. Développer le plus petit $f$ revient à parier sur le
+chemin globalement le plus prometteur, sans jamais oublier le coût déjà payé
+(contrairement à Greedy) ni ignorer la direction du but (contrairement à
+Dijkstra). Les deux cas limites se retrouvent immédiatement : $h \equiv 0$ redonne
+Dijkstra, et ignorer $g$ redonne Greedy.
+
+\medskip
+
+L'optimalité d'A* n'est toutefois pas automatique : elle repose sur deux
+propriétés de l'heuristique $h$, l'\emph{admissibilité} et la \emph{consistance}, que nous définissons avant d'énoncer le résultat.
+
+\medskip
+
+\paragraph{Admissibilité et consistance.}
+Une heuristique $h : V \to \mathbb{R}_{\ge 0}$ est \emph{admissible} si elle ne
+surestime jamais le coût restant réel, $h(v) \le d(v, t)$ pour tout $v$. Elle est
+\emph{consistante} (ou monotone) si, pour tout arc $(u, v)$,
+\[
+  h(u) \;\le\; w(u, v) + h(v), \qquad h(t) = 0 .
+\]
+La consistance entraîne l'admissibilité.
+
+\paragraph{Optimalité d'A*.}
+Si $h$ est admissible, A* rend un chemin de coût minimal. Si $h$ est de plus
+consistante, alors la valeur $g(u)$ au moment où $u$ est réglé est déjà $d(s,u)$,
+et aucun nœud n'est jamais ré-ouvert : A* règle chaque nœud au plus une fois.
+
+\subsection{L'heuristique orthodromique}
+\label{sec:haversine}
+
+L'heuristique géométrique naturelle sur une carte est la distance à vol d'oiseau,
+c'est-à-dire la distance orthodromique (\emph{grand cercle}, \emph{haversine})
+entre le nœud courant et la cible. Pour deux points de coordonnées
+$(\varphi_1, \lambda_1)$ et $(\varphi_2, \lambda_2)$ (latitude $\varphi$,
+longitude $\lambda$, en radians) sur une sphère de rayon $R$ :
+\[
+  a = \sin^2\!\Big(\frac{\Delta\varphi}{2}\Big)
+      + \cos\varphi_1 \cos\varphi_2 \, \sin^2\!\Big(\frac{\Delta\lambda}{2}\Big),
+  \qquad
+  h_{\text{hav}}(u) = 2R \, \operatorname{arcsin}\!\big(\sqrt{a}\,\big),
+\]
+avec $\Delta\varphi = \varphi_2 - \varphi_1$ et
+$\Delta\lambda = \lambda_2 - \lambda_1$. La quantité $a$ est le carré du sinus de
+la moitié de l'angle au centre séparant les deux points ; $\operatorname{arcsin}
+\sqrt{a}$ récupère cette demi-mesure, et le facteur $2R$ la convertit en distance
+sur la sphère. On prend $R \approx 6{,}371 \times 10^{6}$~m (rayon terrestre
+moyen).
+
+\medskip
+
+Cette heuristique est \textbf{admissible} car aucune route ne peut être plus
+courte que la ligne droite (à la surface du globe) reliant deux points :
+$h_{\text{hav}}(u) \le d(u,t)$ toujours. Elle est \textbf{consistante} car la
+métrique orthodromique satisfait elle-même l'inégalité triangulaire. A* reste
+donc optimal et ne ré-explore jamais un nœud.
+
+\paragraph{Intuition géométrique de l'ellipse.} Sous consistance, A* développe
+\emph{tous} les nœuds tels que $f(v) < d(s,t)$ et \emph{aucun} tel que
+$f(v) > d(s,t)$. Or $\{v : g(v) + h_{\text{hav}}(v) \le d(s,t)\}$, en
+approximant $g(v)$ par la distance à $s$, décrit approximativement l'intérieur
+d'une \textbf{ellipse} de foyers $s$ et $t$. Le disque de Dijkstra se resserre
+ainsi en une ellipse étirée le long de la route : plus $h$ est proche de la
+distance réelle, plus l'ellipse est fine.
+
+\paragraph{A* généralise Dijkstra.}
+Une unique implémentation générique d'A* sert de socle à A*, ALT et, avec
+$h \equiv 0$, à Dijkstra lui-même : l'heuristique nulle est trivialement
+admissible et réduit $f = g + h$ à $f = g$. Autrement dit, Dijkstra est le cas
+particulier « sans information » d'A*.
+
+\section{ALT = A* + Landmarks + inégalité Triangulaire}
+\label{sec:alt}
+
+Sur une route, l'heuristique du vol d'oiseau est faible : rivières, voies ferrées
+et corridors autoroutiers imposent des détours bien plus longs que la ligne
+droite, si bien que $h_{\text{hav}}$ sous-estime fortement et qu'A* explore
+encore largement. La réponse est l'\textbf{heuristique triangulaire}
+\citep{goldberg2005alt} : on pré-calcule les distances \emph{réelles} entre
+quelques points de référence et tous les autres nœuds, puis on les exploite via
+l'inégalité triangulaire pour obtenir une borne inférieure bien plus serrée que
+la distance à vol d'oiseau : une borne qui « connaît » les détours.
+
+\subsection{Les deux bornes triangulaires}
+\label{sec:alt-bornes}
+
+Soit $L$ un \textbf{landmark} (un nœud d'ancrage) dont on connaît les distances
+exactes vers et depuis tous les autres nœuds. La distance de graphe $d$ satisfait
+l'inégalité triangulaire ; en l'écrivant de deux façons on obtient deux bornes
+inférieures sur la distance recherchée $d(u,t)$. À partir de
+$d(u,L) \le d(u,t) + d(t,L)$ :
+\[
+  d(u, t) \;\ge\; d(u, L) - d(t, L)
+  \tag{le landmark est « derrière » la cible}
+\]
+et à partir de $d(L,t) \le d(L,u) + d(u,t)$ :
+\[
+  d(u, t) \;\ge\; d(L, t) - d(L, u)
+  \tag{le landmark est « devant » la cible.}
+\]
+Comme le graphe est orienté, $d(u,L) \neq d(L,u)$ en général : on stocke donc
+\emph{deux} tables par landmark, obtenues par un Dijkstra depuis $L$ sur le graphe
+$G$ et un autre sur le graphe inverse $G^{\mathsf R}$ :
+\[
+  \text{from}_L[L, v] = d(L, v),
+  \qquad
+  \text{to}_L[L, v] = d(v, L).
+\]
+L'heuristique ALT prend, pour un ensemble de landmarks $\{L_1,\dots,L_k\}$, le
+\emph{maximum} de toutes ces bornes (le maximum de bornes inférieures reste une
+borne inférieure, plus serrée) :
+\[
+  h_{\text{ALT}}(u) \;=\; \max_{1 \le i \le k}\ \max\!\Big(
+     \text{to}_L[L_i,u] - \text{to}_L[L_i,t],\;\;
+     \text{from}_L[L_i,t] - \text{from}_L[L_i,u]
+  \Big).
+\]
+
+\paragraph{ALT est admissible et consistante.}
+Chaque terme du maximum est, par les inégalités ci-dessus, une borne inférieure
+de $d(u,t)$ ; leur maximum vérifie donc $h_{\text{ALT}}(u) \le d(u,t)$
+(admissibilité). De plus, chaque terme est consistant (il s'écrit comme une
+différence de distances exactes, qui satisfait $h(u) \le w(u,v) + h(v)$), et le
+maximum d'un nombre fini de fonctions consistantes est consistant. A* piloté par
+$h_{\text{ALT}}$ est donc optimal et ne ré-ouvre aucun nœud.
+
+\noindent
+Parce qu'elle repose sur de vraies distances routières, $h_{\text{ALT}}$ capture
+les détours que la ligne droite ignore : A* n'explore plus alors qu'un mince
+\textbf{corridor} autour de la route optimale au lieu d'une ellipse.
+
+\paragraph{Précision du pré-calcul.}
+Les tables de distances sont stockées en flottants \texttt{float64}. Un stockage
+en \texttt{float32} a été essayé mais brise l'admissibilité : les arrondis
+peuvent rendre $h_{\text{ALT}}(u) > d(u,t)$ d'un epsilon, ce qui suffit à rendre
+A* sous-optimal. La double précision est donc une exigence de \emph{correction},
+pas seulement de qualité.
+
+\paragraph{Coût du pré-calcul.} Sélectionner et pré-calculer $k$ landmarks
+représente $2k$ exécutions complètes de Dijkstra (une par landmark, sur $G$ et sur
+$G^{\mathsf R}$) : sur Paris, environ $0{,}2$~s pour $k = 16$. Ce coût est payé
+une seule fois puis réutilisé à chaque requête, ce qui explique pourquoi ALT
+convient au routage répété sur une carte fixe. Le coût \emph{par nœud} d'une
+requête est $O(k)$ (un maximum sur les $k$ landmarks).
+
+\subsection{Sélection des landmarks}
+\label{sec:landmark-select}
+
+\emph{Quels} nœuds deviennent landmarks compte énormément : la borne est d'autant
+plus serrée que les landmarks sont « derrière » la source ou « au-delà » de la
+cible, donc en périphérie de la carte. Nous implémentons quatre stratégies,
+comparées en \S\ref{sec:landmark-study} :
+
+\begin{bulletlist}
+  \item \texttt{random} : $k$ nœuds tirés uniformément (référence naïve) ;
+  \item \texttt{planar} : le nœud géométriquement le plus extrême dans chacun
+        des $k$ secteurs angulaires autour du centre (landmarks planaires
+        classiques) ;
+  \item \texttt{farthest} : $k$-centre glouton, chaque nouveau landmark est le
+        nœud le plus éloigné (en distance de graphe) de ceux déjà choisis, ce qui
+        pousse les landmarks vers la périphérie ;
+  \item \texttt{avoid} \citep{goldberg2005avoid} : ajoute chaque landmark là où
+        l'ensemble courant couvre le plus \emph{mal} le graphe (le sous-arbre le
+        plus « lourd » de l'arbre de plus courts chemins d'une racine aléatoire,
+        c'est-à-dire la zone où l'heuristique actuelle est la plus faible).
+        Alternative adaptative à \texttt{farthest}.
+\end{bulletlist}
+
+\subsection{Landmarks actifs}
+\label{sec:active}
+Une requête n'a pas besoin de consulter les $k$ landmarks : pour un couple
+$(s,t)$ donné, seuls quelques-uns fournissent une borne réellement serrée. On ne
+conserve alors que les $\texttt{num\_active}$ landmarks donnant les plus grandes
+bornes, ce qui réduit le coût $O(k)$ par nœud lorsque $k$ est grand ; c'est la
+sélection dite des \emph{landmarks actifs}, dans la lignée des raffinements d'ALT
+\citep{goldberg2005alt}.
+
+\section{Techniques avancées}
+\label{sec:beyond}
+
+Les quatre techniques suivantes dépassent les fondamentaux et relèvent de l'état
+de l'art du routage. Toutes restent \emph{exactes} (même route que Dijkstra).
+
+\subsection{Recherche bidirectionnelle}
+\label{sec:bidir}
+Plutôt qu'une seule boule depuis la source, on lance \emph{deux} recherches
+simultanées \citep{nicholson1966} : une en avant depuis $s$, une en arrière
+depuis $t$ sur le graphe inverse $G^{\mathsf R}$. Elles se rejoignent « au
+milieu », chaque boule ayant environ la moitié du rayon ; ensemble, elles règlent
+donc bien moins de nœuds : deux petites taches qui se touchent au lieu d'un
+grand disque.
+
+\paragraph{Condition d'arrêt.} On maintient $\mu$, la plus petite longueur de
+chemin \emph{complet} $s \to t$ rencontrée jusqu'ici (mise à jour dès qu'un nœud
+$v$ est atteint par les deux côtés : $\mu \gets \min(\mu, d_f(v) + d_b(v))$, où
+$d_f$ et $d_b$ sont les distances avant et arrière). On peut s'arrêter dès que la
+somme des minima des deux frontières atteint $\mu$ : aucun chemin non encore vu ne
+peut alors être plus court.
+
+\begin{bulletlist}
+  \item \textbf{Bi-Dijkstra} : non informé, prouvablement optimal
+        \citep{nicholson1966}.
+  \item \textbf{Bi-ALT} : chaque côté guidé par ALT \citep{pohl1971}. Rendre
+        l'A* bidirectionnel \emph{prouvablement} optimal est délicat, car les deux
+        heuristiques doivent rester mutuellement consistantes. On utilise le
+        \textbf{potentiel moyen} d'Ikeda \emph{et al.} \citep{ikeda1994} :
+        \[
+          p(v) = \tfrac12\big(\text{lb}(v \to t) - \text{lb}(s \to v)\big),
+        \]
+        où $\text{lb}$ désigne la borne ALT. On repondère alors chaque arc par son
+        \emph{coût réduit}
+        \[
+          w'(u,v) = w(u,v) - p(u) + p(v) \;\ge\; 0 ,
+        \]
+        qui reste positif car $p$ est un potentiel \emph{faisable}
+        ($|p(u)-p(v)| \le w(u,v)$). La recherche devient un Bi-Dijkstra ordinaire
+        sur les coûts réduits (optimal par l'argument classique) ; les longueurs
+        réelles sont recouvrées en sommant les poids d'origine le long de la route
+        rendue, si bien que le coût rapporté est toujours exact.
+\end{bulletlist}
+
+\subsection{File à seaux (tableau de piles)}
+\label{sec:bucket}
+Le choix de la structure de la frontière influe sur la vitesse. Au tas binaire
+(opérations en $O(\log n)$) on peut substituer, pour Dijkstra, une
+\textbf{file à seaux} de Dial \citep{dial1969}. Les clés (des distances en
+mètres, positives) sont discrétisées : un nœud de clé $\kappa$ tombe dans le seau
+d'indice $\lfloor \kappa / \Delta \rfloor$, où $\Delta$ est la largeur de seau.
+Un curseur balaie les seaux par indice croissant et ne recule jamais, exploitant
+le fait que dans Dijkstra la clé minimale est \emph{monotone} (non décroissante).
+Chaque opération est alors en $O(1)$ amorti.
+
+\paragraph{Exactitude de la file à seaux.}
+La file à seaux reproduit exactement l'ordre de Dijkstra lorsque la largeur
+$\Delta$ est inférieure ou égale au poids d'arc minimal. Dans ce cas, un nœud du
+seau courant ne peut plus jamais être amélioré (toute amélioration coûterait au
+moins $\Delta$ et tomberait dans un seau ultérieur), donc le dépiler est sûr.
+
+\medskip
+
+Nous n'appliquons \emph{pas} les seaux à A* : avec une heuristique consistante,
+les coûts d'arc \emph{réduits} $w'(u,v) = w(u,v) - h(u) + h(v)$ peuvent être
+nuls, et aucune largeur positive ne garantit alors l'exactitude sans ré-ouvrir de
+nœuds. La technique est classiquement attribuée à Dial \citep{dial1969} ; nos
+mesures (\S\ref{sec:bucket-result}) montrent qu'en Python interprété elle
+n'accélère pas le \texttt{heapq} compilé, l'asymptotique favorable étant masquée
+par les constantes.
+
+\subsection{Arc Flags}
+\label{sec:arcflags}
+Autre idée dirigée \citep{koehler2006arcflags} : on partitionne la carte en $R$
+régions (par un $k$-means géographique sur les coordonnées) et l'on pré-calcule,
+pour chaque arc $e$ et chaque région $r$, un \textbf{drapeau} : un bit
+$\text{AF}[e][r]$ qui vaut 1 si $e$ peut figurer sur un plus court chemin
+\emph{entrant dans} la région $r$. Une requête vers une cible $t$ exécute un
+Dijkstra normal mais ne relâche que les arcs dont le drapeau pour la région de
+$t$ est positionné : elle ignore ainsi tout arc qui, de manière prouvée, ne peut
+pas aider à atteindre cette partie de la carte.
+
+\paragraph{Pré-calcul et correction.} Un plus court chemin venant de l'extérieur
+d'une région $r$ doit y pénétrer par un \textbf{nœud frontière} (un nœud de $r$
+ayant un arc entrant depuis une autre région). Pour chaque nœud frontière $b$ de
+$r$, on fait croître l'arbre des plus courts chemins \emph{vers} $b$ (un Dijkstra
+sur le graphe inverse) et l'on marque, pour la région $r$, tous les arcs de cet
+arbre ; les arcs internes à $r$ sont également marqués pour $r$. Par optimalité
+des sous-chemins, on marque ainsi exactement les arcs qu'un plus court chemin
+entrant dans $r$ peut emprunter, ce qui garantit que la requête élaguée reste
+\textbf{optimale}. Le coût mémoire est $O(|E| \cdot R)$ bits.
+
+\medskip
+
+Arc Flags et ALT sont des membres complémentaires de la famille « dirigée » : Arc
+Flags a un travail par nœud trivial (un seul test de bit) et est donc rapide en
+temps réel, même s'il explore plus de nœuds qu'ALT (\S\ref{sec:bench}).
+
+\subsection{Contraction Hierarchies}
+\label{sec:ch}
+L'état de l'art moderne pour les réseaux routiers
+\citep{geisberger2008ch} attaque l'échelle sous un autre angle : plutôt qu'une
+meilleure heuristique, il change le \emph{graphe} en y ajoutant des raccourcis.
+
+\paragraph{Pré-calcul.} On ordonne les nœuds par \textbf{importance} croissante,
+puis on les \emph{contracte} un à un. Contracter un nœud $v$ le retire du graphe ;
+pour chaque paire de voisins restants $u \to v \to w$ dont la plus courte
+connexion passait réellement par $v$, on insère une arête \textbf{raccourci}
+$u \to w$ de poids combiné $w(u,v) + w(v,w)$, en mémorisant $v$ comme nœud
+intermédiaire pour pouvoir reconstruire le vrai chemin. Le « passait réellement
+par $v$ » est décidé par une \textbf{recherche de témoin} locale : un petit
+Dijkstra qui cherche un chemin alternatif $u \to w$ évitant $v$ et pas plus long
+que $w(u,v)+w(v,w)$ ; s'il en existe un, le raccourci est inutile. L'importance
+d'un nœud est estimée par la \emph{différence d'arêtes} (raccourcis ajoutés moins
+arêtes supprimées) : contracter d'abord les nœuds « simples » garde le nombre de
+raccourcis faible. Sur Paris, cela ajoute environ 31\,000 raccourcis en $\sim
+7$~s.
+
+\paragraph{Requête.} C'est un Bi-Dijkstra sur le graphe augmenté qui, depuis la
+source, ne relâche que les arêtes vers des nœuds de \textbf{rang supérieur}, et
+depuis la cible seulement les arêtes venant de nœuds de rang supérieur : les deux
+recherches « montent » la hiérarchie et se rejoignent à son nœud le plus haut.
+Comme elles atteignent vite le sommet clairsemé, elles règlent très peu de nœuds
+(\S\ref{sec:ch-result}). Le vrai chemin est ensuite recouvré en
+\textbf{dépaquetant} récursivement chaque raccourci en ses deux arêtes
+sous-jacentes.

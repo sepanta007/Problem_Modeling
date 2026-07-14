@@ -1,0 +1,149 @@
+\chapter{Modélisation du problème}
+\label{ch:modelisation}
+
+Ce chapitre formalise le problème du plus court chemin comme une recherche dans
+un espace d'états, puis décrit comment une carte OpenStreetMap réelle est
+transformée en le graphe pondéré sur lequel opèrent tous les algorithmes.
+
+\section{Le plus court chemin comme recherche dans un espace d'états}
+\label{sec:espace-etats}
+
+Un problème de recherche se définit par un espace d'états
+$\mathcal{S}$, un état initial $s_0$, une fonction de transition qui associe à
+chaque état ses successeurs, un test de but, et un coût de transition. Le plus
+court chemin routier s'y inscrit directement :
+
+\begin{bulletlist}
+  \item un \textbf{état} est une intersection du réseau ;
+  \item les \textbf{transitions} depuis une intersection sont les tronçons de
+        route qui en partent ;
+  \item le \textbf{coût} d'une transition est la longueur du tronçon (en mètres) ;
+  \item le \textbf{test de but} est l'égalité avec l'intersection de destination.
+\end{bulletlist}
+
+\paragraph{Graphe routier pondéré.}
+Le réseau est modélisé par un graphe orienté pondéré $G = (V, E, w)$ où $V$ est
+l'ensemble des intersections, $E \subseteq V \times V$ l'ensemble des tronçons
+orientés, et $w : E \to \mathbb{R}_{>0}$ la fonction de poids qui à chaque arc
+associe sa longueur. Chaque nœud $v \in V$ porte de plus des coordonnées
+géographiques $(\varphi_v, \lambda_v)$ (latitude, longitude).
+
+\medskip
+
+\paragraph{Problème du plus court chemin.}
+Étant donnés une source $s \in V$ et une cible $t \in V$, on cherche un chemin
+$P = (s = v_0, v_1, \dots, v_k = t)$ avec $(v_{i}, v_{i+1}) \in E$ qui minimise le
+coût total
+\[
+  w(P) \;=\; \sum_{i=0}^{k-1} w(v_i, v_{i+1}).
+\]
+On note $d(s, t) = \min_P w(P)$ la distance de plus court chemin.
+
+\paragraph{Pourquoi le graphe est orienté.}
+Les rues à sens unique imposent que $G$ soit \textbf{orienté} : l'existence de
+l'arc $(u, v)$ n'entraîne pas celle de $(v, u)$, et même lorsque les deux
+existent la distance n'est pas symétrique en général,
+$d(u, v) \neq d(v, u)$. Ce point, souvent négligé, est essentiel : il obligera
+l'heuristique ALT (\S\ref{sec:alt}) à stocker \emph{deux} tables de distances par
+landmark, l'une sur $G$ et l'autre sur le graphe inverse $G^{\mathsf{R}}$.
+
+\paragraph{Poids strictement positifs.}
+Les longueurs de tronçons sont strictement positives. Cette hypothèse
+$w > 0$ est ce qui rend Dijkstra correct (un nœud une fois \emph{réglé}, c'est-à-dire
+extrait avec sa distance définitive, ne peut plus être amélioré) et ce qui
+justifiera l'exactitude de la file à seaux de Dial (\S\ref{sec:bucket}).
+
+\section{D'OpenStreetMap au graphe}
+\label{sec:osm}
+
+Le réseau est téléchargé avec la bibliothèque \texttt{osmnx}
+\citep{boeing2017osmnx}, qui interroge OpenStreetMap et renvoie le graphe
+routier « circulable » d'un lieu. L'extrait par défaut est
+\textbf{Paris, France}. On applique ensuite deux traitements indispensables.
+
+\subsection{Composante fortement connexe}
+
+Un graphe routier brut contient des impasses, des zones mal cartographiées et des
+nœuds pendants dont on ne peut pas sortir (ou dans lesquels on ne peut pas
+entrer) en respectant les sens uniques. Pour garantir que \emph{toute} paire
+$(s, t)$ soit joignable dans les deux sens, on ne conserve que la
+\textbf{plus grande composante fortement connexe} (SCC) du graphe orienté. Après
+ce filtrage, l'extrait de Paris compte :
+
+\begin{center}
+\textbf{9\,235 nœuds} \quad et \quad \textbf{17\,886 arcs orientés.}
+\end{center}
+
+\subsection{Représentation compacte pour l'échelle}
+\label{sec:csr}
+
+Le choix de structure de données est le principal levier d'ingénierie du projet.
+Les nœuds sont réindexés en entiers contigus $0, 1, \dots, |V|-1$, et
+l'adjacence est stockée dans des tableaux \texttt{numpy} plats de type
+\emph{listes d'adjacence compactes} (proches d'un format CSR, \emph{Compressed
+Sparse Row}) : un tableau concatène toutes les têtes d'arcs, un tableau parallèle
+tous les poids, et un tableau d'index marque, pour chaque nœud, où commencent ses
+arcs sortants. Parcourir les voisins d'un nœud revient alors à lire une tranche
+contiguë de mémoire, ce qui est à la fois rapide et économe en cache.
+
+\medskip
+
+On maintient de surcroît l'\textbf{adjacence inverse} (les arcs entrants),
+nécessaire à la recherche bidirectionnelle (\S\ref{sec:bidir}) et au pré-calcul
+d'ALT, ainsi que le \textbf{nom de rue} de chaque arc, réutilisé pour produire un
+itinéraire lisible « tourne à gauche / à droite » (\S\ref{sec:multistop}).
+
+\begin{table}[htbp]
+  \centering
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    Propriété & Valeur \\
+    \midrule
+    Source des données      & OpenStreetMap (via \texttt{osmnx}) \\
+    Lieu                    & Paris, France \\
+    Filtrage                & plus grande composante fortement connexe \\
+    Nombre de nœuds $|V|$   & 9\,235 \\
+    Nombre d'arcs $|E|$     & 17\,886 \\
+    Poids des arcs          & longueur du tronçon en mètres, $w > 0$ \\
+    Orientation             & orienté (sens uniques) \\
+    \bottomrule
+  \end{tabular}
+  \caption{Instance principale utilisée dans tout le rapport.}
+  \label{tab:instance}
+\end{table}
+
+\section{Géocodage des adresses}
+\label{sec:geocodage}
+
+Pour manipuler des trajets réels plutôt que des identifiants de nœuds, une
+adresse en toutes lettres (par exemple \emph{« Place du Maréchal de Lattre de
+Tassigny, 75016 Paris »}) est géocodée en coordonnées $(\varphi, \lambda)$, puis
+projetée sur le \textbf{nœud le plus proche} du graphe. La recherche du nœud le
+plus proche utilise la distance orthodromique (\emph{haversine}, définie en
+\S\ref{sec:haversine}) entre l'adresse et chaque nœud. Le trajet fil rouge du
+rapport, un parcours à plusieurs étapes à travers Paris, est ainsi entièrement
+spécifié par des adresses (\S\ref{sec:multistop}).
+
+\section{Métriques évaluées}
+\label{sec:metriques}
+
+Conformément à l'énoncé, deux grandeurs mesurent le \emph{travail} d'un
+algorithme, indépendamment de la route (identique) qu'il rend :
+
+\begin{bulletlist}
+  \item \textbf{Nœuds explorés} : le nombre de nœuds définitivement
+        \emph{réglés} (extraits de la file avec leur distance finale). C'est la
+        mesure « machine-indépendante » de l'effort, celle qui reflète la qualité
+        de l'heuristique.
+  \item \textbf{Temps de réponse} : le temps d'exécution moyen par requête,
+        mesuré après une requête d'échauffement. Il intègre les \emph{constantes}
+        cachées par le décompte de nœuds (coût par nœud de l'heuristique, gestion
+        de la file, dépaquetage des raccourcis).
+\end{bulletlist}
+
+\noindent
+On y ajoute systématiquement le \textbf{contrôle d'optimalité}
+(\S\ref{sec:correctness}) : l'erreur relative maximale de longueur de chemin par rapport
+à Dijkstra. La distinction entre « nœuds explorés » et « temps » se révélera
+cruciale : un algorithme peut explorer moins de nœuds tout en étant plus lent (si
+son coût par nœud est élevé), et inversement (Arc Flags, \S\ref{sec:arcflags}).

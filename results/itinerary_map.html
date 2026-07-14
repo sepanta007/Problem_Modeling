@@ -1,0 +1,1404 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_8db463f39f69fde0085e3f9f4dc09882 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+</head>
+<body>
+    
+    
+<style>
+#route-panel *{box-sizing:border-box}
+#route-panel{
+  position:fixed; top:16px; right:16px; z-index:9999; width:360px;
+  max-height:88vh; display:flex; flex-direction:column;
+  background:#ffffff; border-radius:16px; overflow:hidden;
+  box-shadow:0 10px 40px rgba(15,23,42,.28);
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif; color:#0f172a;
+}
+#route-panel .rp-head{
+  padding:16px 18px 14px; color:#fff;
+  background:linear-gradient(135deg,#1e3a8a 0%,#4f46e5 55%,#7c3aed 100%);
+}
+#route-panel .rp-title{font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+  opacity:.85;margin-bottom:4px}
+#route-panel .rp-route{font-size:16px;font-weight:700;line-height:1.35}
+#route-panel .rp-stats{margin-top:10px;display:flex;gap:8px}
+#route-panel .rp-chip{background:rgba(255,255,255,.18);border-radius:999px;
+  padding:4px 12px;font-size:13px;font-weight:600;backdrop-filter:blur(4px)}
+#route-panel .rp-body{overflow-y:auto;padding:6px 0 10px}
+#route-panel .rp-body::-webkit-scrollbar{width:8px}
+#route-panel .rp-body::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px}
+#route-panel .rp-leg{padding:12px 16px 4px;font-weight:700;font-size:14px;
+  display:flex;align-items:center;gap:8px}
+#route-panel .rp-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto}
+#route-panel .rp-legdist{margin-left:auto;font-size:12px;font-weight:600;color:#64748b}
+#route-panel .rp-step{display:flex;align-items:center;gap:11px;padding:7px 16px;
+  border-radius:10px;margin:1px 8px;transition:background .12s}
+#route-panel .rp-step:hover{background:#f1f5f9}
+#route-panel .rp-badge{flex:0 0 auto;width:26px;height:26px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  font-size:15px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+#route-panel .rp-street{font-size:13.5px;font-weight:600;line-height:1.25}
+#route-panel .rp-sub{font-size:11.5px;color:#94a3b8;margin-top:1px}
+</style>
+<div id='route-panel'><div class='rp-head'><div class='rp-title'>Itinéraire optimal</div><div class='rp-route'>Dauphine → PariSanté → ENS Ulm → PSL</div><div class='rp-stats'><span class='rp-chip'>📍 13.91 km</span><span class='rp-chip'>🧭 50 étapes</span><span class='rp-chip'>🚗 3 trajets</span></div></div><div class='rp-body'><div class='rp-leg'><span class='rp-dot' style='background:#2563eb'></span>Dauphine → PariSanté<span class='rp-legdist'>5.36 km</span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>▶</span><span><div class='rp-street'>Place du Maréchal de Lattre de Tassigny</div><div class='rp-sub'>55 m</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↱</span><span><div class='rp-street'>Boulevard Lannes</div><div class='rp-sub'>547 m · à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↰</span><span><div class='rp-street'>Rue Dufrénoy</div><div class='rp-sub'>49 m · à gauche</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↱</span><span><div class='rp-street'>Boulevard Flandrin</div><div class='rp-sub'>283 m · à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↑</span><span><div class='rp-street'>Place Tattegrain</div><div class='rp-sub'>20 m · tout droit</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↑</span><span><div class='rp-street'>Boulevard Jules Sandeau</div><div class='rp-sub'>367 m · tout droit</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↱</span><span><div class='rp-street'>route sans nom</div><div class='rp-sub'>16 m · à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↗</span><span><div class='rp-street'>Rue Octave Feuillet</div><div class='rp-sub'>23 m · légèrement à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↱</span><span><div class='rp-street'>Boulevard Émile Augier</div><div class='rp-sub'>284 m · à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↑</span><span><div class='rp-street'>Rue Largillière</div><div class='rp-sub'>118 m · tout droit</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↖</span><span><div class='rp-street'>Rue des Vignes</div><div class='rp-sub'>153 m · légèrement à gauche</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↗</span><span><div class='rp-street'>Rue de Boulainvilliers</div><div class='rp-sub'>671 m · légèrement à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↑</span><span><div class='rp-street'>Rue Maurice Bourdet</div><div class='rp-sub'>313 m · tout droit</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↱</span><span><div class='rp-street'>Quai André Citroën</div><div class='rp-sub'>859 m · à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↰</span><span><div class='rp-street'>Rue Cauchy</div><div class='rp-sub'>229 m · à gauche</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↱</span><span><div class='rp-street'>Rue Balard</div><div class='rp-sub'>235 m · à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↑</span><span><div class='rp-street'>Rue de la Montagne de la Fage</div><div class='rp-sub'>218 m · tout droit</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↑</span><span><div class='rp-street'>Rue Balard</div><div class='rp-sub'>166 m · tout droit</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↱</span><span><div class='rp-street'>Place Balard</div><div class='rp-sub'>108 m · à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↑</span><span><div class='rp-street'>Avenue de la Porte de Sèvres</div><div class='rp-sub'>282 m · tout droit</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↑</span><span><div class='rp-street'>Place des Martyrs de la Résistance de la Porte de Sèvres</div><div class='rp-sub'>35 m · tout droit</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↑</span><span><div class='rp-street'>Rue Louis Armand</div><div class='rp-sub'>309 m · tout droit</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#2563eb'>↑</span><span><div class='rp-street'>Rue d&#x27;Oradour-sur-Glane</div><div class='rp-sub'>17 m · tout droit</div></span></div><div class='rp-leg'><span class='rp-dot' style='background:#7c3aed'></span>PariSanté → ENS Ulm<span class='rp-legdist'>6.55 km</span></div><div class='rp-step'><span class='rp-badge' style='background:#7c3aed'>▶</span><span><div class='rp-street'>Rue d&#x27;Oradour-sur-Glane</div><div class='rp-sub'>361 m</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#7c3aed'>↰</span><span><div class='rp-street'>Rue Ernest Renan</div><div class='rp-sub'>20 m · à gauche</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#7c3aed'>↰</span><span><div class='rp-street'>Rue d&#x27;Oradour-sur-Glane</div><div class='rp-sub'>348 m · à gauche</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#7c3aed'>↱</span><span><div class='rp-street'>Rue de la Porte d&#x27;Issy</div><div class='rp-sub'>338 m · à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#7c3aed'>↑</span><span><div class='rp-street'>Boulevard Victor</div><div class='rp-sub'>20 m · tout droit</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#7c3aed'>↑</span><span><div class='rp-street'>Rue Desnouettes</div><div class='rp-sub'>382 m · tout droit</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#7c3aed'>↱</span><span><div class='rp-street'>Rue Auguste Chabrières</div><div class='rp-sub'>205 m · à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#7c3aed'>↗</span><span><div class='rp-street'>Rue de la Croix Nivert</div><div class='rp-sub'>68 m · légèrement à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#7c3aed'>↰</span><span><div class='rp-street'>Rue de Vaugirard</div><div class='rp-sub'>2.56 km · à gauche</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#7c3aed'>↗</span><span><div class='rp-street'>Boulevard du Montparnasse</div><div class='rp-sub'>1.36 km · légèrement à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#7c3aed'>↱</span><span><div class='rp-street'>Boulevard de Port-Royal</div><div class='rp-sub'>125 m · à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#7c3aed'>↰</span><span><div class='rp-street'>Rue Pierre Nicole</div><div class='rp-sub'>428 m · à gauche</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#7c3aed'>↱</span><span><div class='rp-street'>Rue des Feuillantines</div><div class='rp-sub'>194 m · à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#7c3aed'>↰</span><span><div class='rp-street'>Rue d&#x27;Ulm</div><div class='rp-sub'>141 m · à gauche</div></span></div><div class='rp-leg'><span class='rp-dot' style='background:#059669'></span>ENS Ulm → PSL<span class='rp-legdist'>2.01 km</span></div><div class='rp-step'><span class='rp-badge' style='background:#059669'>▶</span><span><div class='rp-street'>Rue Louis Thuillier</div><div class='rp-sub'>100 m</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#059669'>↱</span><span><div class='rp-street'>Rue Gay-Lussac</div><div class='rp-sub'>513 m · à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#059669'>↗</span><span><div class='rp-street'>Boulevard Saint-Michel</div><div class='rp-sub'>54 m · légèrement à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#059669'>↰</span><span><div class='rp-street'>Place Edmond Rostand</div><div class='rp-sub'>69 m · à gauche</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#059669'>↗</span><span><div class='rp-street'>Rue de Médicis</div><div class='rp-sub'>154 m · légèrement à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#059669'>↗</span><span><div class='rp-street'>Rue Corneille</div><div class='rp-sub'>104 m · légèrement à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#059669'>↑</span><span><div class='rp-street'>Place de l&#x27;Odéon</div><div class='rp-sub'>39 m · tout droit</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#059669'>↱</span><span><div class='rp-street'>Rue de l&#x27;Odéon</div><div class='rp-sub'>198 m · à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#059669'>↑</span><span><div class='rp-street'>Carrefour de l&#x27;Odéon</div><div class='rp-sub'>74 m · tout droit</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#059669'>↑</span><span><div class='rp-street'>Rue de l&#x27;Ancienne Comédie</div><div class='rp-sub'>136 m · tout droit</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#059669'>↗</span><span><div class='rp-street'>Rue Dauphine</div><div class='rp-sub'>313 m · légèrement à droite</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#059669'>↰</span><span><div class='rp-street'>Quai de Conti</div><div class='rp-sub'>49 m · à gauche</div></span></div><div class='rp-step'><span class='rp-badge' style='background:#059669'>↰</span><span><div class='rp-street'>Rue Guénégaud</div><div class='rp-sub'>204 m · à gauche</div></span></div></div></div>
+    
+            <div class="folium-map" id="map_8db463f39f69fde0085e3f9f4dc09882" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_8db463f39f69fde0085e3f9f4dc09882 = L.map(
+                "map_8db463f39f69fde0085e3f9f4dc09882",
+                {
+                    center: [48.84498940411765, 2.30108019],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 13,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+            L.control.scale().addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+
+            
+
+        
+    
+            var tile_layer_281e8a01df32fba67afeb916e395f221 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors \u0026copy; \u003ca href=\"https://carto.com/attributions\"\u003eCARTO\u003c/a\u003e",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_281e8a01df32fba67afeb916e395f221.addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+            var poly_line_18bd0e2fcd44869be7325e48e1e25279 = L.polyline(
+                [[48.871316, 2.2743479], [48.8712647, 2.2744188], [48.8710997, 2.2749988], [48.8690008, 2.2735833], [48.8688372, 2.2734618], [48.8686696, 2.2733414], [48.8668753, 2.271815], [48.8667024, 2.2716786], [48.866552, 2.2723017], [48.864031, 2.2719291], [48.8638535, 2.2719723], [48.8629739, 2.2721854], [48.8621406, 2.2725974], [48.8607789, 2.2735838], [48.8607538, 2.2735248], [48.8607108, 2.2735585], [48.8607184, 2.2736131], [48.8606077, 2.2738841], [48.8594638, 2.2737543], [48.8583409, 2.2726634], [48.858296, 2.2726456], [48.8581639, 2.2726223], [48.8580299, 2.2725953], [48.857301, 2.2730326], [48.8571664, 2.2733132], [48.8571112, 2.273422], [48.8568011, 2.2740197], [48.8564627, 2.2746919], [48.855176, 2.2752346], [48.8542033, 2.2755291], [48.8529741, 2.275815], [48.8527583, 2.2758633], [48.8514669, 2.2782337], [48.851324, 2.2784754], [48.8493803, 2.2815634], [48.8490428, 2.28124], [48.8473851, 2.2788917], [48.8464602, 2.2775827], [48.8462173, 2.2771677], [48.8460724, 2.2769661], [48.8453801, 2.276237], [48.8434167, 2.2748807], [48.8424273, 2.2776178], [48.8408839, 2.2779164], [48.8403352, 2.2780205], [48.8383937, 2.2783782], [48.8369129, 2.2786049], [48.8368401, 2.2784686], [48.8367711, 2.278485], [48.8362001, 2.2781823], [48.8360334, 2.2781151], [48.8341341, 2.2771345], [48.8336391, 2.2768355], [48.8334992, 2.2767248], [48.8334365, 2.2768918], [48.8333698, 2.2770434], [48.8331553, 2.2776132], [48.8327497, 2.27874], [48.8326632, 2.2789802], [48.8325686, 2.2792429], [48.8321814, 2.2803184], [48.8320578, 2.2805406], [48.8319256, 2.2806672]],
+                {"bubblingMouseEvents": true, "color": "#0f172a", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#0f172a", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.25, "smoothFactor": 1.0, "stroke": true, "weight": 11}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+            var poly_line_a368d12c299e27bdbceb96f7a9c066e5 = L.polyline(
+                [[48.871316, 2.2743479], [48.8712647, 2.2744188], [48.8710997, 2.2749988], [48.8690008, 2.2735833], [48.8688372, 2.2734618], [48.8686696, 2.2733414], [48.8668753, 2.271815], [48.8667024, 2.2716786], [48.866552, 2.2723017], [48.864031, 2.2719291], [48.8638535, 2.2719723], [48.8629739, 2.2721854], [48.8621406, 2.2725974], [48.8607789, 2.2735838], [48.8607538, 2.2735248], [48.8607108, 2.2735585], [48.8607184, 2.2736131], [48.8606077, 2.2738841], [48.8594638, 2.2737543], [48.8583409, 2.2726634], [48.858296, 2.2726456], [48.8581639, 2.2726223], [48.8580299, 2.2725953], [48.857301, 2.2730326], [48.8571664, 2.2733132], [48.8571112, 2.273422], [48.8568011, 2.2740197], [48.8564627, 2.2746919], [48.855176, 2.2752346], [48.8542033, 2.2755291], [48.8529741, 2.275815], [48.8527583, 2.2758633], [48.8514669, 2.2782337], [48.851324, 2.2784754], [48.8493803, 2.2815634], [48.8490428, 2.28124], [48.8473851, 2.2788917], [48.8464602, 2.2775827], [48.8462173, 2.2771677], [48.8460724, 2.2769661], [48.8453801, 2.276237], [48.8434167, 2.2748807], [48.8424273, 2.2776178], [48.8408839, 2.2779164], [48.8403352, 2.2780205], [48.8383937, 2.2783782], [48.8369129, 2.2786049], [48.8368401, 2.2784686], [48.8367711, 2.278485], [48.8362001, 2.2781823], [48.8360334, 2.2781151], [48.8341341, 2.2771345], [48.8336391, 2.2768355], [48.8334992, 2.2767248], [48.8334365, 2.2768918], [48.8333698, 2.2770434], [48.8331553, 2.2776132], [48.8327497, 2.27874], [48.8326632, 2.2789802], [48.8325686, 2.2792429], [48.8321814, 2.2803184], [48.8320578, 2.2805406], [48.8319256, 2.2806672]],
+                {"bubblingMouseEvents": true, "color": "#2563eb", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#2563eb", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.95, "smoothFactor": 1.0, "stroke": true, "weight": 6}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+            poly_line_a368d12c299e27bdbceb96f7a9c066e5.bindTooltip(
+                `<div>
+                     Dauphine → PariSanté
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_3f7b62c190cffcd53f4e403996f4064e = L.circleMarker(
+                [48.8710997, 2.2749988],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_67cd69f5b87bdafae2af0ec5843d6696 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_90a4c11039a4162651a6749e1ea2b896 = $(`<div id="html_90a4c11039a4162651a6749e1ea2b896" style="width: 100.0%; height: 100.0%;"><b>↱ à droite</b><br>Boulevard Lannes<br><span style='color:#888'>547 m</span></div>`)[0];
+                popup_67cd69f5b87bdafae2af0ec5843d6696.setContent(html_90a4c11039a4162651a6749e1ea2b896);
+            
+        
+
+        circle_marker_3f7b62c190cffcd53f4e403996f4064e.bindPopup(popup_67cd69f5b87bdafae2af0ec5843d6696)
+        ;
+
+        
+    
+    
+            var circle_marker_1e7592a844d849aee4d733f63723c00d = L.circleMarker(
+                [48.8667024, 2.2716786],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_2e24800fa45e9d93293a73d7a44a3f3e = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_46f46b9ae84161abc2b21bcae7da6953 = $(`<div id="html_46f46b9ae84161abc2b21bcae7da6953" style="width: 100.0%; height: 100.0%;"><b>↰ à gauche</b><br>Rue Dufrénoy<br><span style='color:#888'>49 m</span></div>`)[0];
+                popup_2e24800fa45e9d93293a73d7a44a3f3e.setContent(html_46f46b9ae84161abc2b21bcae7da6953);
+            
+        
+
+        circle_marker_1e7592a844d849aee4d733f63723c00d.bindPopup(popup_2e24800fa45e9d93293a73d7a44a3f3e)
+        ;
+
+        
+    
+    
+            var circle_marker_d9247ace8dba2717756fcdb79677a26c = L.circleMarker(
+                [48.866552, 2.2723017],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_30b3f749e2fbcbd90bc67ffd7156c756 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_a429843c8268bc5004fccd7390447ada = $(`<div id="html_a429843c8268bc5004fccd7390447ada" style="width: 100.0%; height: 100.0%;"><b>↱ à droite</b><br>Boulevard Flandrin<br><span style='color:#888'>283 m</span></div>`)[0];
+                popup_30b3f749e2fbcbd90bc67ffd7156c756.setContent(html_a429843c8268bc5004fccd7390447ada);
+            
+        
+
+        circle_marker_d9247ace8dba2717756fcdb79677a26c.bindPopup(popup_30b3f749e2fbcbd90bc67ffd7156c756)
+        ;
+
+        
+    
+    
+            var circle_marker_0b019528e67910a264e0ecf991b9359a = L.circleMarker(
+                [48.864031, 2.2719291],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_60b7d7071ddd52ca5d58ec8a5a5ff50e = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_710c85b96c3b1f367c718f8e3b2677f2 = $(`<div id="html_710c85b96c3b1f367c718f8e3b2677f2" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Place Tattegrain<br><span style='color:#888'>20 m</span></div>`)[0];
+                popup_60b7d7071ddd52ca5d58ec8a5a5ff50e.setContent(html_710c85b96c3b1f367c718f8e3b2677f2);
+            
+        
+
+        circle_marker_0b019528e67910a264e0ecf991b9359a.bindPopup(popup_60b7d7071ddd52ca5d58ec8a5a5ff50e)
+        ;
+
+        
+    
+    
+            var circle_marker_fc206548b4439b74d6a947b45eb9ea7c = L.circleMarker(
+                [48.8638535, 2.2719723],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_2f1d25ed1f9dd15101573a82eb0dd204 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_7df688c96c2bfeff47ddfce143f0ad61 = $(`<div id="html_7df688c96c2bfeff47ddfce143f0ad61" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Boulevard Jules Sandeau<br><span style='color:#888'>367 m</span></div>`)[0];
+                popup_2f1d25ed1f9dd15101573a82eb0dd204.setContent(html_7df688c96c2bfeff47ddfce143f0ad61);
+            
+        
+
+        circle_marker_fc206548b4439b74d6a947b45eb9ea7c.bindPopup(popup_2f1d25ed1f9dd15101573a82eb0dd204)
+        ;
+
+        
+    
+    
+            var circle_marker_596bab6cee4cab594147c6b35c7a534d = L.circleMarker(
+                [48.8607789, 2.2735838],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_ab6fd62edbbdbee3b71a889f8294f99a = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_e4d8b0ea9020476bcf86673e02c8ccd1 = $(`<div id="html_e4d8b0ea9020476bcf86673e02c8ccd1" style="width: 100.0%; height: 100.0%;"><b>↱ à droite</b><br>route sans nom<br><span style='color:#888'>16 m</span></div>`)[0];
+                popup_ab6fd62edbbdbee3b71a889f8294f99a.setContent(html_e4d8b0ea9020476bcf86673e02c8ccd1);
+            
+        
+
+        circle_marker_596bab6cee4cab594147c6b35c7a534d.bindPopup(popup_ab6fd62edbbdbee3b71a889f8294f99a)
+        ;
+
+        
+    
+    
+            var circle_marker_f78a563f109a4583eb9ff5503dea1dfe = L.circleMarker(
+                [48.8607184, 2.2736131],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_525d79c08c231c8846ece618ebce1e53 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_2d9571c70075f1841407223e632a5acf = $(`<div id="html_2d9571c70075f1841407223e632a5acf" style="width: 100.0%; height: 100.0%;"><b>↗ légèrement à droite</b><br>Rue Octave Feuillet<br><span style='color:#888'>23 m</span></div>`)[0];
+                popup_525d79c08c231c8846ece618ebce1e53.setContent(html_2d9571c70075f1841407223e632a5acf);
+            
+        
+
+        circle_marker_f78a563f109a4583eb9ff5503dea1dfe.bindPopup(popup_525d79c08c231c8846ece618ebce1e53)
+        ;
+
+        
+    
+    
+            var circle_marker_9099188cd52d2a9034ebbf9c85cd4e3f = L.circleMarker(
+                [48.8606077, 2.2738841],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_834c0e255df42bc9576b2139928895fe = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_6283df9d782906bf3878bba37bc5f9a8 = $(`<div id="html_6283df9d782906bf3878bba37bc5f9a8" style="width: 100.0%; height: 100.0%;"><b>↱ à droite</b><br>Boulevard Émile Augier<br><span style='color:#888'>284 m</span></div>`)[0];
+                popup_834c0e255df42bc9576b2139928895fe.setContent(html_6283df9d782906bf3878bba37bc5f9a8);
+            
+        
+
+        circle_marker_9099188cd52d2a9034ebbf9c85cd4e3f.bindPopup(popup_834c0e255df42bc9576b2139928895fe)
+        ;
+
+        
+    
+    
+            var circle_marker_a445c8656bc81e91fbcdd31f0ef6f428 = L.circleMarker(
+                [48.858296, 2.2726456],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_e3e38bc9a0bd7cbade113ea96ef2c455 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_fbecbdef6db21b6d6f88e6144d4c5344 = $(`<div id="html_fbecbdef6db21b6d6f88e6144d4c5344" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Rue Largillière<br><span style='color:#888'>118 m</span></div>`)[0];
+                popup_e3e38bc9a0bd7cbade113ea96ef2c455.setContent(html_fbecbdef6db21b6d6f88e6144d4c5344);
+            
+        
+
+        circle_marker_a445c8656bc81e91fbcdd31f0ef6f428.bindPopup(popup_e3e38bc9a0bd7cbade113ea96ef2c455)
+        ;
+
+        
+    
+    
+            var circle_marker_2a930984749a1f2fb5053c3d90e63408 = L.circleMarker(
+                [48.857301, 2.2730326],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_7ca8c4dcade0ae180abb71f8c2dfdbd9 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_a1b7de13e6c289bfc1b4e82181a3ad49 = $(`<div id="html_a1b7de13e6c289bfc1b4e82181a3ad49" style="width: 100.0%; height: 100.0%;"><b>↖ légèrement à gauche</b><br>Rue des Vignes<br><span style='color:#888'>153 m</span></div>`)[0];
+                popup_7ca8c4dcade0ae180abb71f8c2dfdbd9.setContent(html_a1b7de13e6c289bfc1b4e82181a3ad49);
+            
+        
+
+        circle_marker_2a930984749a1f2fb5053c3d90e63408.bindPopup(popup_7ca8c4dcade0ae180abb71f8c2dfdbd9)
+        ;
+
+        
+    
+    
+            var circle_marker_5a2beb85ec50dffe9a19d2c5be98aba9 = L.circleMarker(
+                [48.8564627, 2.2746919],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_dd1d642712e0dce46830def6e0f26942 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_be9cf5c9996c2a93ae1173fa55a15674 = $(`<div id="html_be9cf5c9996c2a93ae1173fa55a15674" style="width: 100.0%; height: 100.0%;"><b>↗ légèrement à droite</b><br>Rue de Boulainvilliers<br><span style='color:#888'>671 m</span></div>`)[0];
+                popup_dd1d642712e0dce46830def6e0f26942.setContent(html_be9cf5c9996c2a93ae1173fa55a15674);
+            
+        
+
+        circle_marker_5a2beb85ec50dffe9a19d2c5be98aba9.bindPopup(popup_dd1d642712e0dce46830def6e0f26942)
+        ;
+
+        
+    
+    
+            var circle_marker_928e3351377f97cb46b5337adc49381c = L.circleMarker(
+                [48.851324, 2.2784754],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_7bcada9f146e2fd538977483aba3e350 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_1bec0836b2bd0729dca14ee48e95296e = $(`<div id="html_1bec0836b2bd0729dca14ee48e95296e" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Rue Maurice Bourdet<br><span style='color:#888'>313 m</span></div>`)[0];
+                popup_7bcada9f146e2fd538977483aba3e350.setContent(html_1bec0836b2bd0729dca14ee48e95296e);
+            
+        
+
+        circle_marker_928e3351377f97cb46b5337adc49381c.bindPopup(popup_7bcada9f146e2fd538977483aba3e350)
+        ;
+
+        
+    
+    
+            var circle_marker_73e92b468e685661929474f119aec49e = L.circleMarker(
+                [48.8493803, 2.2815634],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_dadf257857667d86de860bce2e2d8245 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_04c93c89594f81ca06f186f99c487553 = $(`<div id="html_04c93c89594f81ca06f186f99c487553" style="width: 100.0%; height: 100.0%;"><b>↱ à droite</b><br>Quai André Citroën<br><span style='color:#888'>859 m</span></div>`)[0];
+                popup_dadf257857667d86de860bce2e2d8245.setContent(html_04c93c89594f81ca06f186f99c487553);
+            
+        
+
+        circle_marker_73e92b468e685661929474f119aec49e.bindPopup(popup_dadf257857667d86de860bce2e2d8245)
+        ;
+
+        
+    
+    
+            var circle_marker_d6a8280dc14aea717fa78ca60eb9ea8a = L.circleMarker(
+                [48.8434167, 2.2748807],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_c965de256945c4325617eb44676027e4 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_b3870abbcba58cf468017caeebee7deb = $(`<div id="html_b3870abbcba58cf468017caeebee7deb" style="width: 100.0%; height: 100.0%;"><b>↰ à gauche</b><br>Rue Cauchy<br><span style='color:#888'>229 m</span></div>`)[0];
+                popup_c965de256945c4325617eb44676027e4.setContent(html_b3870abbcba58cf468017caeebee7deb);
+            
+        
+
+        circle_marker_d6a8280dc14aea717fa78ca60eb9ea8a.bindPopup(popup_c965de256945c4325617eb44676027e4)
+        ;
+
+        
+    
+    
+            var circle_marker_24848071e469414af7aa6be6c0e9ab65 = L.circleMarker(
+                [48.8424273, 2.2776178],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_3b6788cd6f9eab57bdb7490ad4b34866 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_ee3318c7e90ff85456fadce293f41bb0 = $(`<div id="html_ee3318c7e90ff85456fadce293f41bb0" style="width: 100.0%; height: 100.0%;"><b>↱ à droite</b><br>Rue Balard<br><span style='color:#888'>235 m</span></div>`)[0];
+                popup_3b6788cd6f9eab57bdb7490ad4b34866.setContent(html_ee3318c7e90ff85456fadce293f41bb0);
+            
+        
+
+        circle_marker_24848071e469414af7aa6be6c0e9ab65.bindPopup(popup_3b6788cd6f9eab57bdb7490ad4b34866)
+        ;
+
+        
+    
+    
+            var circle_marker_93a7972c5d0a0f093bfb566e34a53f0a = L.circleMarker(
+                [48.8403352, 2.2780205],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_cf482ebf18f2ba59728ba41ff7cf19a4 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_cbda444243db2d59a488f3eef5164dd5 = $(`<div id="html_cbda444243db2d59a488f3eef5164dd5" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Rue de la Montagne de la Fage<br><span style='color:#888'>218 m</span></div>`)[0];
+                popup_cf482ebf18f2ba59728ba41ff7cf19a4.setContent(html_cbda444243db2d59a488f3eef5164dd5);
+            
+        
+
+        circle_marker_93a7972c5d0a0f093bfb566e34a53f0a.bindPopup(popup_cf482ebf18f2ba59728ba41ff7cf19a4)
+        ;
+
+        
+    
+    
+            var circle_marker_4ea20328facd772c7944601fd0664a5e = L.circleMarker(
+                [48.8383937, 2.2783782],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_73aeaed8a36b38b6b3685a7a04d6ee84 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_0f3fb346a1f42810801e790659039296 = $(`<div id="html_0f3fb346a1f42810801e790659039296" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Rue Balard<br><span style='color:#888'>166 m</span></div>`)[0];
+                popup_73aeaed8a36b38b6b3685a7a04d6ee84.setContent(html_0f3fb346a1f42810801e790659039296);
+            
+        
+
+        circle_marker_4ea20328facd772c7944601fd0664a5e.bindPopup(popup_73aeaed8a36b38b6b3685a7a04d6ee84)
+        ;
+
+        
+    
+    
+            var circle_marker_144724f04a99c75c4a3082d5f72394b1 = L.circleMarker(
+                [48.8369129, 2.2786049],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_57e57b0fbb572b9e34794535bc5f57f9 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_3759f316286337b474df81b7d332542b = $(`<div id="html_3759f316286337b474df81b7d332542b" style="width: 100.0%; height: 100.0%;"><b>↱ à droite</b><br>Place Balard<br><span style='color:#888'>108 m</span></div>`)[0];
+                popup_57e57b0fbb572b9e34794535bc5f57f9.setContent(html_3759f316286337b474df81b7d332542b);
+            
+        
+
+        circle_marker_144724f04a99c75c4a3082d5f72394b1.bindPopup(popup_57e57b0fbb572b9e34794535bc5f57f9)
+        ;
+
+        
+    
+    
+            var circle_marker_c48f4351ef635c4c15168621af3bdf46 = L.circleMarker(
+                [48.8360334, 2.2781151],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_72266a7c412b90e262610838d9ff94e4 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_25c3eebfbeb8ee07b72815877c782d1b = $(`<div id="html_25c3eebfbeb8ee07b72815877c782d1b" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Avenue de la Porte de Sèvres<br><span style='color:#888'>282 m</span></div>`)[0];
+                popup_72266a7c412b90e262610838d9ff94e4.setContent(html_25c3eebfbeb8ee07b72815877c782d1b);
+            
+        
+
+        circle_marker_c48f4351ef635c4c15168621af3bdf46.bindPopup(popup_72266a7c412b90e262610838d9ff94e4)
+        ;
+
+        
+    
+    
+            var circle_marker_82288edfebe39a06a577648ab966c423 = L.circleMarker(
+                [48.8336391, 2.2768355],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_7b842d8f3733002e9475c98478bd4c52 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_a502de2daf4ebf8d693f27a2ed41ea93 = $(`<div id="html_a502de2daf4ebf8d693f27a2ed41ea93" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Place des Martyrs de la Résistance de la Porte de Sèvres<br><span style='color:#888'>35 m</span></div>`)[0];
+                popup_7b842d8f3733002e9475c98478bd4c52.setContent(html_a502de2daf4ebf8d693f27a2ed41ea93);
+            
+        
+
+        circle_marker_82288edfebe39a06a577648ab966c423.bindPopup(popup_7b842d8f3733002e9475c98478bd4c52)
+        ;
+
+        
+    
+    
+            var circle_marker_9604677eb0d53c812f50255854ae7af6 = L.circleMarker(
+                [48.8334365, 2.2768918],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_7b2ae01a4653fcb7e9bd09a25e67bb6e = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_fedd736df8277efcbf5fc32cb07dd317 = $(`<div id="html_fedd736df8277efcbf5fc32cb07dd317" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Rue Louis Armand<br><span style='color:#888'>309 m</span></div>`)[0];
+                popup_7b2ae01a4653fcb7e9bd09a25e67bb6e.setContent(html_fedd736df8277efcbf5fc32cb07dd317);
+            
+        
+
+        circle_marker_9604677eb0d53c812f50255854ae7af6.bindPopup(popup_7b2ae01a4653fcb7e9bd09a25e67bb6e)
+        ;
+
+        
+    
+    
+            var circle_marker_b72b0d5a5b66e4a0b306facff69865a5 = L.circleMarker(
+                [48.8320578, 2.2805406],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#2563eb", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_c6520c5a18e2ff701dc9c32331b27762 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_ac7c3c39f0466ad426b7e5e3f8140209 = $(`<div id="html_ac7c3c39f0466ad426b7e5e3f8140209" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Rue d&#x27;Oradour-sur-Glane<br><span style='color:#888'>17 m</span></div>`)[0];
+                popup_c6520c5a18e2ff701dc9c32331b27762.setContent(html_ac7c3c39f0466ad426b7e5e3f8140209);
+            
+        
+
+        circle_marker_b72b0d5a5b66e4a0b306facff69865a5.bindPopup(popup_c6520c5a18e2ff701dc9c32331b27762)
+        ;
+
+        
+    
+    
+            var poly_line_e54d1d9c130358b1b4b30b2b6a57426f = L.polyline(
+                [[48.8319256, 2.2806672], [48.8316204, 2.2815563], [48.8311034, 2.2829836], [48.8303645, 2.2847308], [48.8303052, 2.284919], [48.8304783, 2.2848866], [48.8320654, 2.2807896], [48.8321585, 2.2808575], [48.8342826, 2.2839411], [48.8344462, 2.2840518], [48.8346462, 2.2843401], [48.8352546, 2.2854647], [48.8359462, 2.2885417], [48.8351269, 2.2890224], [48.8343989, 2.2899441], [48.8341103, 2.2899883], [48.8338085, 2.2900887], [48.8338911, 2.2902177], [48.8340714, 2.2904987], [48.8348392, 2.291729], [48.8354868, 2.2927903], [48.8359552, 2.2937106], [48.8360768, 2.2939812], [48.8362481, 2.2943721], [48.8368713, 2.2957886], [48.8372138, 2.2964732], [48.8373633, 2.2967653], [48.8377321, 2.2974244], [48.8379106, 2.297758], [48.8382928, 2.2984838], [48.8387099, 2.2992896], [48.8390988, 2.3000875], [48.8392434, 2.3004276], [48.8393895, 2.3008585], [48.839551, 2.3013309], [48.8396445, 2.3015874], [48.8398413, 2.3021857], [48.8399296, 2.3025357], [48.8403778, 2.304262], [48.8406143, 2.304983], [48.8407603, 2.3054536], [48.8408896, 2.3058929], [48.8411072, 2.3066782], [48.8412593, 2.3072001], [48.8414778, 2.3079317], [48.841855, 2.3091474], [48.8422975, 2.3105739], [48.8424504, 2.3110668], [48.8428569, 2.3123924], [48.8429871, 2.3128002], [48.8432229, 2.3135842], [48.8433651, 2.3140583], [48.8435548, 2.3146651], [48.8437119, 2.3151948], [48.84375, 2.3153234], [48.8444207, 2.3176931], [48.8445905, 2.3183609], [48.8447147, 2.3188066], [48.8449993, 2.319828], [48.8450851, 2.320183], [48.8447218, 2.3212915], [48.8440272, 2.3233822], [48.8437403, 2.3242703], [48.8435325, 2.3246753], [48.8429916, 2.3263211], [48.8419493, 2.329484], [48.8418681, 2.3297256], [48.8413578, 2.3312631], [48.8405472, 2.3337063], [48.8401821, 2.3348063], [48.8396159, 2.3365808], [48.8396872, 2.3367591], [48.8395524, 2.3372598], [48.8394603, 2.3375854], [48.8392558, 2.3383421], [48.8396461, 2.3386321], [48.8411795, 2.3398116], [48.842123, 2.3412898], [48.8412715, 2.3435923], [48.8424525, 2.3442707]],
+                {"bubblingMouseEvents": true, "color": "#0f172a", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#0f172a", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.25, "smoothFactor": 1.0, "stroke": true, "weight": 11}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+            var poly_line_a8d5b06e94c6801cce50435b4dc5d115 = L.polyline(
+                [[48.8319256, 2.2806672], [48.8316204, 2.2815563], [48.8311034, 2.2829836], [48.8303645, 2.2847308], [48.8303052, 2.284919], [48.8304783, 2.2848866], [48.8320654, 2.2807896], [48.8321585, 2.2808575], [48.8342826, 2.2839411], [48.8344462, 2.2840518], [48.8346462, 2.2843401], [48.8352546, 2.2854647], [48.8359462, 2.2885417], [48.8351269, 2.2890224], [48.8343989, 2.2899441], [48.8341103, 2.2899883], [48.8338085, 2.2900887], [48.8338911, 2.2902177], [48.8340714, 2.2904987], [48.8348392, 2.291729], [48.8354868, 2.2927903], [48.8359552, 2.2937106], [48.8360768, 2.2939812], [48.8362481, 2.2943721], [48.8368713, 2.2957886], [48.8372138, 2.2964732], [48.8373633, 2.2967653], [48.8377321, 2.2974244], [48.8379106, 2.297758], [48.8382928, 2.2984838], [48.8387099, 2.2992896], [48.8390988, 2.3000875], [48.8392434, 2.3004276], [48.8393895, 2.3008585], [48.839551, 2.3013309], [48.8396445, 2.3015874], [48.8398413, 2.3021857], [48.8399296, 2.3025357], [48.8403778, 2.304262], [48.8406143, 2.304983], [48.8407603, 2.3054536], [48.8408896, 2.3058929], [48.8411072, 2.3066782], [48.8412593, 2.3072001], [48.8414778, 2.3079317], [48.841855, 2.3091474], [48.8422975, 2.3105739], [48.8424504, 2.3110668], [48.8428569, 2.3123924], [48.8429871, 2.3128002], [48.8432229, 2.3135842], [48.8433651, 2.3140583], [48.8435548, 2.3146651], [48.8437119, 2.3151948], [48.84375, 2.3153234], [48.8444207, 2.3176931], [48.8445905, 2.3183609], [48.8447147, 2.3188066], [48.8449993, 2.319828], [48.8450851, 2.320183], [48.8447218, 2.3212915], [48.8440272, 2.3233822], [48.8437403, 2.3242703], [48.8435325, 2.3246753], [48.8429916, 2.3263211], [48.8419493, 2.329484], [48.8418681, 2.3297256], [48.8413578, 2.3312631], [48.8405472, 2.3337063], [48.8401821, 2.3348063], [48.8396159, 2.3365808], [48.8396872, 2.3367591], [48.8395524, 2.3372598], [48.8394603, 2.3375854], [48.8392558, 2.3383421], [48.8396461, 2.3386321], [48.8411795, 2.3398116], [48.842123, 2.3412898], [48.8412715, 2.3435923], [48.8424525, 2.3442707]],
+                {"bubblingMouseEvents": true, "color": "#7c3aed", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#7c3aed", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.95, "smoothFactor": 1.0, "stroke": true, "weight": 6}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+            poly_line_a8d5b06e94c6801cce50435b4dc5d115.bindTooltip(
+                `<div>
+                     PariSanté → ENS Ulm
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_6b2c7cd7fcbcc100e5a629283b76a5c9 = L.circleMarker(
+                [48.8303052, 2.284919],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#7c3aed", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_5c03213553a0c40822acdbb92467c6a0 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_e3806c93a3366e3744637cdee3e712ec = $(`<div id="html_e3806c93a3366e3744637cdee3e712ec" style="width: 100.0%; height: 100.0%;"><b>↰ à gauche</b><br>Rue Ernest Renan<br><span style='color:#888'>20 m</span></div>`)[0];
+                popup_5c03213553a0c40822acdbb92467c6a0.setContent(html_e3806c93a3366e3744637cdee3e712ec);
+            
+        
+
+        circle_marker_6b2c7cd7fcbcc100e5a629283b76a5c9.bindPopup(popup_5c03213553a0c40822acdbb92467c6a0)
+        ;
+
+        
+    
+    
+            var circle_marker_94707e1c3e97f399e0e80e91eb278438 = L.circleMarker(
+                [48.8304783, 2.2848866],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#7c3aed", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_a12061611e9df9c01292044f26c30e93 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_e67c825eb79a58333705560f506d6453 = $(`<div id="html_e67c825eb79a58333705560f506d6453" style="width: 100.0%; height: 100.0%;"><b>↰ à gauche</b><br>Rue d&#x27;Oradour-sur-Glane<br><span style='color:#888'>348 m</span></div>`)[0];
+                popup_a12061611e9df9c01292044f26c30e93.setContent(html_e67c825eb79a58333705560f506d6453);
+            
+        
+
+        circle_marker_94707e1c3e97f399e0e80e91eb278438.bindPopup(popup_a12061611e9df9c01292044f26c30e93)
+        ;
+
+        
+    
+    
+            var circle_marker_e9f00cecadd8c14d50f28cdf51bb2c6f = L.circleMarker(
+                [48.8320654, 2.2807896],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#7c3aed", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_f8d527a9dc881793209afd44c6c01403 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_1d9564f7927de13031c505506fa535fd = $(`<div id="html_1d9564f7927de13031c505506fa535fd" style="width: 100.0%; height: 100.0%;"><b>↱ à droite</b><br>Rue de la Porte d&#x27;Issy<br><span style='color:#888'>338 m</span></div>`)[0];
+                popup_f8d527a9dc881793209afd44c6c01403.setContent(html_1d9564f7927de13031c505506fa535fd);
+            
+        
+
+        circle_marker_e9f00cecadd8c14d50f28cdf51bb2c6f.bindPopup(popup_f8d527a9dc881793209afd44c6c01403)
+        ;
+
+        
+    
+    
+            var circle_marker_b493c33d600e1ce7075a98a930b0c352 = L.circleMarker(
+                [48.8342826, 2.2839411],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#7c3aed", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_d9d0c367ba26e9f7fec72f25f959aa03 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_ef156d93b4f752df52ef81c4377f45e5 = $(`<div id="html_ef156d93b4f752df52ef81c4377f45e5" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Boulevard Victor<br><span style='color:#888'>20 m</span></div>`)[0];
+                popup_d9d0c367ba26e9f7fec72f25f959aa03.setContent(html_ef156d93b4f752df52ef81c4377f45e5);
+            
+        
+
+        circle_marker_b493c33d600e1ce7075a98a930b0c352.bindPopup(popup_d9d0c367ba26e9f7fec72f25f959aa03)
+        ;
+
+        
+    
+    
+            var circle_marker_f17c22baa93ea595284cdcb4d8e6a342 = L.circleMarker(
+                [48.8344462, 2.2840518],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#7c3aed", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_eaa847de3ea0fc269f96d90d7b19071c = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_d9ad3393587d9999df56f482e7f54675 = $(`<div id="html_d9ad3393587d9999df56f482e7f54675" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Rue Desnouettes<br><span style='color:#888'>382 m</span></div>`)[0];
+                popup_eaa847de3ea0fc269f96d90d7b19071c.setContent(html_d9ad3393587d9999df56f482e7f54675);
+            
+        
+
+        circle_marker_f17c22baa93ea595284cdcb4d8e6a342.bindPopup(popup_eaa847de3ea0fc269f96d90d7b19071c)
+        ;
+
+        
+    
+    
+            var circle_marker_42e99804be66271310754732a4cff771 = L.circleMarker(
+                [48.8359462, 2.2885417],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#7c3aed", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_23e9b2105f9a2f8a307089f337ec1414 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_470bd026f2bdfc68f3c45b6882113427 = $(`<div id="html_470bd026f2bdfc68f3c45b6882113427" style="width: 100.0%; height: 100.0%;"><b>↱ à droite</b><br>Rue Auguste Chabrières<br><span style='color:#888'>205 m</span></div>`)[0];
+                popup_23e9b2105f9a2f8a307089f337ec1414.setContent(html_470bd026f2bdfc68f3c45b6882113427);
+            
+        
+
+        circle_marker_42e99804be66271310754732a4cff771.bindPopup(popup_23e9b2105f9a2f8a307089f337ec1414)
+        ;
+
+        
+    
+    
+            var circle_marker_9aa7cb85837bda209ea52c1c51931b4f = L.circleMarker(
+                [48.8343989, 2.2899441],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#7c3aed", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_14e146735b811c16d50100ed76df9fba = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_b1171a3979fa2bfd6c0734a982895131 = $(`<div id="html_b1171a3979fa2bfd6c0734a982895131" style="width: 100.0%; height: 100.0%;"><b>↗ légèrement à droite</b><br>Rue de la Croix Nivert<br><span style='color:#888'>68 m</span></div>`)[0];
+                popup_14e146735b811c16d50100ed76df9fba.setContent(html_b1171a3979fa2bfd6c0734a982895131);
+            
+        
+
+        circle_marker_9aa7cb85837bda209ea52c1c51931b4f.bindPopup(popup_14e146735b811c16d50100ed76df9fba)
+        ;
+
+        
+    
+    
+            var circle_marker_7bb6807a92bbb455e3afa18a5a124bec = L.circleMarker(
+                [48.8338085, 2.2900887],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#7c3aed", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_af0aef6313a58cfb826d65a4a3851bfc = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_dca5f0fe197a4f6c4384ce1b864f4405 = $(`<div id="html_dca5f0fe197a4f6c4384ce1b864f4405" style="width: 100.0%; height: 100.0%;"><b>↰ à gauche</b><br>Rue de Vaugirard<br><span style='color:#888'>2.56 km</span></div>`)[0];
+                popup_af0aef6313a58cfb826d65a4a3851bfc.setContent(html_dca5f0fe197a4f6c4384ce1b864f4405);
+            
+        
+
+        circle_marker_7bb6807a92bbb455e3afa18a5a124bec.bindPopup(popup_af0aef6313a58cfb826d65a4a3851bfc)
+        ;
+
+        
+    
+    
+            var circle_marker_ff15e811b42f0a4732e2362cdf0849d4 = L.circleMarker(
+                [48.8450851, 2.320183],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#7c3aed", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_270ccd1d986a638e2ec24e6f9600fec9 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_785efdaa5847bc6af9973332a69d9be0 = $(`<div id="html_785efdaa5847bc6af9973332a69d9be0" style="width: 100.0%; height: 100.0%;"><b>↗ légèrement à droite</b><br>Boulevard du Montparnasse<br><span style='color:#888'>1.36 km</span></div>`)[0];
+                popup_270ccd1d986a638e2ec24e6f9600fec9.setContent(html_785efdaa5847bc6af9973332a69d9be0);
+            
+        
+
+        circle_marker_ff15e811b42f0a4732e2362cdf0849d4.bindPopup(popup_270ccd1d986a638e2ec24e6f9600fec9)
+        ;
+
+        
+    
+    
+            var circle_marker_e37328149cd9590bc1424eef034dc6f7 = L.circleMarker(
+                [48.8396872, 2.3367591],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#7c3aed", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_c7add43a377e0bf30d021482615715c6 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_11f178836e11bd0911c16580a5dd3c6f = $(`<div id="html_11f178836e11bd0911c16580a5dd3c6f" style="width: 100.0%; height: 100.0%;"><b>↱ à droite</b><br>Boulevard de Port-Royal<br><span style='color:#888'>125 m</span></div>`)[0];
+                popup_c7add43a377e0bf30d021482615715c6.setContent(html_11f178836e11bd0911c16580a5dd3c6f);
+            
+        
+
+        circle_marker_e37328149cd9590bc1424eef034dc6f7.bindPopup(popup_c7add43a377e0bf30d021482615715c6)
+        ;
+
+        
+    
+    
+            var circle_marker_6c9c28449de49effdbbd2f8914911f60 = L.circleMarker(
+                [48.8392558, 2.3383421],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#7c3aed", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_af3f2c73ee0dfb66b0fa354d865284e3 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_e54eda944d1a0ba62521b3e29500f1fa = $(`<div id="html_e54eda944d1a0ba62521b3e29500f1fa" style="width: 100.0%; height: 100.0%;"><b>↰ à gauche</b><br>Rue Pierre Nicole<br><span style='color:#888'>428 m</span></div>`)[0];
+                popup_af3f2c73ee0dfb66b0fa354d865284e3.setContent(html_e54eda944d1a0ba62521b3e29500f1fa);
+            
+        
+
+        circle_marker_6c9c28449de49effdbbd2f8914911f60.bindPopup(popup_af3f2c73ee0dfb66b0fa354d865284e3)
+        ;
+
+        
+    
+    
+            var circle_marker_8ce86b70e7ba7aa1e77ebbe5dfe69d70 = L.circleMarker(
+                [48.842123, 2.3412898],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#7c3aed", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_9f50506ba1601cf5bc68ba8b380450c7 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_6f190f2313eb65752331104aa862e05d = $(`<div id="html_6f190f2313eb65752331104aa862e05d" style="width: 100.0%; height: 100.0%;"><b>↱ à droite</b><br>Rue des Feuillantines<br><span style='color:#888'>194 m</span></div>`)[0];
+                popup_9f50506ba1601cf5bc68ba8b380450c7.setContent(html_6f190f2313eb65752331104aa862e05d);
+            
+        
+
+        circle_marker_8ce86b70e7ba7aa1e77ebbe5dfe69d70.bindPopup(popup_9f50506ba1601cf5bc68ba8b380450c7)
+        ;
+
+        
+    
+    
+            var circle_marker_3e479f22c2bb79b848cb94bb34af08d2 = L.circleMarker(
+                [48.8412715, 2.3435923],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#7c3aed", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_a50e30460f56e2d8be7dbf487066723a = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_e968415d70db1db590f250bd709cc606 = $(`<div id="html_e968415d70db1db590f250bd709cc606" style="width: 100.0%; height: 100.0%;"><b>↰ à gauche</b><br>Rue d&#x27;Ulm<br><span style='color:#888'>141 m</span></div>`)[0];
+                popup_a50e30460f56e2d8be7dbf487066723a.setContent(html_e968415d70db1db590f250bd709cc606);
+            
+        
+
+        circle_marker_3e479f22c2bb79b848cb94bb34af08d2.bindPopup(popup_a50e30460f56e2d8be7dbf487066723a)
+        ;
+
+        
+    
+    
+            var poly_line_04c62b27898c2f285cd269e53ac0a9cf = L.polyline(
+                [[48.8424525, 2.3442707], [48.8425748, 2.3429147], [48.8431564, 2.3426118], [48.8443229, 2.342042], [48.8459728, 2.3412166], [48.8460884, 2.3411616], [48.8469298, 2.3406328], [48.8473329, 2.3408546], [48.847388, 2.3408835], [48.8475551, 2.3405438], [48.8476522, 2.3400863], [48.8488637, 2.3390556], [48.8490773, 2.3390346], [48.849795, 2.3390268], [48.8499186, 2.3389913], [48.8500311, 2.3387116], [48.8518121, 2.3386898], [48.8520533, 2.3386698], [48.8522875, 2.3387161], [48.8524745, 2.3387535], [48.8536645, 2.3383857], [48.8542008, 2.3388939], [48.8550187, 2.3395832], [48.8553645, 2.3398701], [48.8561313, 2.3404015], [48.8564302, 2.3399176], [48.8552786, 2.3377567]],
+                {"bubblingMouseEvents": true, "color": "#0f172a", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#0f172a", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.25, "smoothFactor": 1.0, "stroke": true, "weight": 11}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+            var poly_line_d87910184f4b40cbb6bc17f89a24e502 = L.polyline(
+                [[48.8424525, 2.3442707], [48.8425748, 2.3429147], [48.8431564, 2.3426118], [48.8443229, 2.342042], [48.8459728, 2.3412166], [48.8460884, 2.3411616], [48.8469298, 2.3406328], [48.8473329, 2.3408546], [48.847388, 2.3408835], [48.8475551, 2.3405438], [48.8476522, 2.3400863], [48.8488637, 2.3390556], [48.8490773, 2.3390346], [48.849795, 2.3390268], [48.8499186, 2.3389913], [48.8500311, 2.3387116], [48.8518121, 2.3386898], [48.8520533, 2.3386698], [48.8522875, 2.3387161], [48.8524745, 2.3387535], [48.8536645, 2.3383857], [48.8542008, 2.3388939], [48.8550187, 2.3395832], [48.8553645, 2.3398701], [48.8561313, 2.3404015], [48.8564302, 2.3399176], [48.8552786, 2.3377567]],
+                {"bubblingMouseEvents": true, "color": "#059669", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "#059669", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.95, "smoothFactor": 1.0, "stroke": true, "weight": 6}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+            poly_line_d87910184f4b40cbb6bc17f89a24e502.bindTooltip(
+                `<div>
+                     ENS Ulm → PSL
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var circle_marker_8e0120b3dcb6c38a285597a7fc60a478 = L.circleMarker(
+                [48.8425748, 2.3429147],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#059669", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_c8d25c194c8c01b22475eae5552fdc5b = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_9357f8b3aae80a25459641b4778512c7 = $(`<div id="html_9357f8b3aae80a25459641b4778512c7" style="width: 100.0%; height: 100.0%;"><b>↱ à droite</b><br>Rue Gay-Lussac<br><span style='color:#888'>513 m</span></div>`)[0];
+                popup_c8d25c194c8c01b22475eae5552fdc5b.setContent(html_9357f8b3aae80a25459641b4778512c7);
+            
+        
+
+        circle_marker_8e0120b3dcb6c38a285597a7fc60a478.bindPopup(popup_c8d25c194c8c01b22475eae5552fdc5b)
+        ;
+
+        
+    
+    
+            var circle_marker_665b5e6a96a62cea51df7e9718e51e94 = L.circleMarker(
+                [48.8469298, 2.3406328],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#059669", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_501ed5fc25a26c77b327cbb189cd3ee0 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_cb0de1bbad5497efbfbdc08b7694006f = $(`<div id="html_cb0de1bbad5497efbfbdc08b7694006f" style="width: 100.0%; height: 100.0%;"><b>↗ légèrement à droite</b><br>Boulevard Saint-Michel<br><span style='color:#888'>54 m</span></div>`)[0];
+                popup_501ed5fc25a26c77b327cbb189cd3ee0.setContent(html_cb0de1bbad5497efbfbdc08b7694006f);
+            
+        
+
+        circle_marker_665b5e6a96a62cea51df7e9718e51e94.bindPopup(popup_501ed5fc25a26c77b327cbb189cd3ee0)
+        ;
+
+        
+    
+    
+            var circle_marker_5ad59edb45901672df037d6cb57c484c = L.circleMarker(
+                [48.847388, 2.3408835],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#059669", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_9f3b50e30900983ff80d348ea7f6bc51 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_09aef47a8689e0670a5f2ff1696b8ab4 = $(`<div id="html_09aef47a8689e0670a5f2ff1696b8ab4" style="width: 100.0%; height: 100.0%;"><b>↰ à gauche</b><br>Place Edmond Rostand<br><span style='color:#888'>69 m</span></div>`)[0];
+                popup_9f3b50e30900983ff80d348ea7f6bc51.setContent(html_09aef47a8689e0670a5f2ff1696b8ab4);
+            
+        
+
+        circle_marker_5ad59edb45901672df037d6cb57c484c.bindPopup(popup_9f3b50e30900983ff80d348ea7f6bc51)
+        ;
+
+        
+    
+    
+            var circle_marker_f7c17fb168ac94efe9acdae76978ceac = L.circleMarker(
+                [48.8476522, 2.3400863],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#059669", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_63645b05f020cede48ea6ea44d263539 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_75aea27d6890c459ba8b5fb2bdb511f2 = $(`<div id="html_75aea27d6890c459ba8b5fb2bdb511f2" style="width: 100.0%; height: 100.0%;"><b>↗ légèrement à droite</b><br>Rue de Médicis<br><span style='color:#888'>154 m</span></div>`)[0];
+                popup_63645b05f020cede48ea6ea44d263539.setContent(html_75aea27d6890c459ba8b5fb2bdb511f2);
+            
+        
+
+        circle_marker_f7c17fb168ac94efe9acdae76978ceac.bindPopup(popup_63645b05f020cede48ea6ea44d263539)
+        ;
+
+        
+    
+    
+            var circle_marker_978d59e9d3c67a454dba4c3d98d00a96 = L.circleMarker(
+                [48.8488637, 2.3390556],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#059669", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_26884cf0aadbcc3ecb17af24e9d70bbf = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_31483ddc67da24e5b5af433b87c32a79 = $(`<div id="html_31483ddc67da24e5b5af433b87c32a79" style="width: 100.0%; height: 100.0%;"><b>↗ légèrement à droite</b><br>Rue Corneille<br><span style='color:#888'>104 m</span></div>`)[0];
+                popup_26884cf0aadbcc3ecb17af24e9d70bbf.setContent(html_31483ddc67da24e5b5af433b87c32a79);
+            
+        
+
+        circle_marker_978d59e9d3c67a454dba4c3d98d00a96.bindPopup(popup_26884cf0aadbcc3ecb17af24e9d70bbf)
+        ;
+
+        
+    
+    
+            var circle_marker_34d27c0a87980a92f40534d36a2558f8 = L.circleMarker(
+                [48.849795, 2.3390268],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#059669", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_01ddcf53720808daa81d3566f34143e0 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_384cf04869678902fc632b19e8c3c736 = $(`<div id="html_384cf04869678902fc632b19e8c3c736" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Place de l&#x27;Odéon<br><span style='color:#888'>39 m</span></div>`)[0];
+                popup_01ddcf53720808daa81d3566f34143e0.setContent(html_384cf04869678902fc632b19e8c3c736);
+            
+        
+
+        circle_marker_34d27c0a87980a92f40534d36a2558f8.bindPopup(popup_01ddcf53720808daa81d3566f34143e0)
+        ;
+
+        
+    
+    
+            var circle_marker_933986cdee0b5f1983d5aec7d1b3e0fc = L.circleMarker(
+                [48.8500311, 2.3387116],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#059669", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_2b721dd7e43835792d99fb5deb6ec24a = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_74977f97055a30fad2cbec433c4f6bff = $(`<div id="html_74977f97055a30fad2cbec433c4f6bff" style="width: 100.0%; height: 100.0%;"><b>↱ à droite</b><br>Rue de l&#x27;Odéon<br><span style='color:#888'>198 m</span></div>`)[0];
+                popup_2b721dd7e43835792d99fb5deb6ec24a.setContent(html_74977f97055a30fad2cbec433c4f6bff);
+            
+        
+
+        circle_marker_933986cdee0b5f1983d5aec7d1b3e0fc.bindPopup(popup_2b721dd7e43835792d99fb5deb6ec24a)
+        ;
+
+        
+    
+    
+            var circle_marker_4383ef9a7be17cb892293a78490bb736 = L.circleMarker(
+                [48.8518121, 2.3386898],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#059669", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_907da7c56985913f97acbc2ac3a7baa9 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_cc145711c55cda2d6137f70fd356c94b = $(`<div id="html_cc145711c55cda2d6137f70fd356c94b" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Carrefour de l&#x27;Odéon<br><span style='color:#888'>74 m</span></div>`)[0];
+                popup_907da7c56985913f97acbc2ac3a7baa9.setContent(html_cc145711c55cda2d6137f70fd356c94b);
+            
+        
+
+        circle_marker_4383ef9a7be17cb892293a78490bb736.bindPopup(popup_907da7c56985913f97acbc2ac3a7baa9)
+        ;
+
+        
+    
+    
+            var circle_marker_dc05caccf169438638a0b77796b79361 = L.circleMarker(
+                [48.8524745, 2.3387535],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#059669", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_c11f0d8f07ee3c2570d30d9ca4526d45 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_2cfaf3b3a9917b159f60c64ccbd8f6cb = $(`<div id="html_2cfaf3b3a9917b159f60c64ccbd8f6cb" style="width: 100.0%; height: 100.0%;"><b>↑ tout droit</b><br>Rue de l&#x27;Ancienne Comédie<br><span style='color:#888'>136 m</span></div>`)[0];
+                popup_c11f0d8f07ee3c2570d30d9ca4526d45.setContent(html_2cfaf3b3a9917b159f60c64ccbd8f6cb);
+            
+        
+
+        circle_marker_dc05caccf169438638a0b77796b79361.bindPopup(popup_c11f0d8f07ee3c2570d30d9ca4526d45)
+        ;
+
+        
+    
+    
+            var circle_marker_6fa8ff94766aca9d6d15a3e8c9d24763 = L.circleMarker(
+                [48.8536645, 2.3383857],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#059669", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_0b59985d6ec8a42848eeadb131e70ce8 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_61a07c7c0d962333bbd49a07c5213e3d = $(`<div id="html_61a07c7c0d962333bbd49a07c5213e3d" style="width: 100.0%; height: 100.0%;"><b>↗ légèrement à droite</b><br>Rue Dauphine<br><span style='color:#888'>313 m</span></div>`)[0];
+                popup_0b59985d6ec8a42848eeadb131e70ce8.setContent(html_61a07c7c0d962333bbd49a07c5213e3d);
+            
+        
+
+        circle_marker_6fa8ff94766aca9d6d15a3e8c9d24763.bindPopup(popup_0b59985d6ec8a42848eeadb131e70ce8)
+        ;
+
+        
+    
+    
+            var circle_marker_81a2eb9e32783c1784f58459e0c89663 = L.circleMarker(
+                [48.8561313, 2.3404015],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#059669", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_f8b56e80ab696c6107508848e6d49341 = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_b294edc2584413359b892f3b1e27c463 = $(`<div id="html_b294edc2584413359b892f3b1e27c463" style="width: 100.0%; height: 100.0%;"><b>↰ à gauche</b><br>Quai de Conti<br><span style='color:#888'>49 m</span></div>`)[0];
+                popup_f8b56e80ab696c6107508848e6d49341.setContent(html_b294edc2584413359b892f3b1e27c463);
+            
+        
+
+        circle_marker_81a2eb9e32783c1784f58459e0c89663.bindPopup(popup_f8b56e80ab696c6107508848e6d49341)
+        ;
+
+        
+    
+    
+            var circle_marker_c74c12c38be89511a8d9ab12d1e9b084 = L.circleMarker(
+                [48.8564302, 2.3399176],
+                {"bubblingMouseEvents": true, "color": "#ffffff", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "#059669", "fillOpacity": 1, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 4, "stroke": true, "weight": 1.5}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+        var popup_d9cf0fc32327f2ecbe9ee511d0ba6b6e = L.popup({
+  "maxWidth": 220,
+});
+
+        
+            
+                var html_c54d38dd42e5ebed499e6a26fa534f10 = $(`<div id="html_c54d38dd42e5ebed499e6a26fa534f10" style="width: 100.0%; height: 100.0%;"><b>↰ à gauche</b><br>Rue Guénégaud<br><span style='color:#888'>204 m</span></div>`)[0];
+                popup_d9cf0fc32327f2ecbe9ee511d0ba6b6e.setContent(html_c54d38dd42e5ebed499e6a26fa534f10);
+            
+        
+
+        circle_marker_c74c12c38be89511a8d9ab12d1e9b084.bindPopup(popup_d9cf0fc32327f2ecbe9ee511d0ba6b6e)
+        ;
+
+        
+    
+    
+            var marker_dda934cace374f0fae4b141006dcbc8a = L.marker(
+                [48.871316, 2.2743479],
+                {
+}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+            var div_icon_f897f819dd676221948cdc217320b32c = L.divIcon({
+  "html": "\u003cdiv style=\u0027width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#16a34a;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center\u0027\u003e\u003cspan style=\u0027transform:rotate(45deg);color:#fff;font-size:15px;font-weight:700\u0027\u003e\u25b6\u003c/span\u003e\u003c/div\u003e",
+  "iconSize": [30, 30],
+  "iconAnchor": [15, 30],
+  "className": "empty",
+});
+        
+    
+            marker_dda934cace374f0fae4b141006dcbc8a.bindTooltip(
+                `<div>
+                     Dauphine
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_dda934cace374f0fae4b141006dcbc8a.setIcon(div_icon_f897f819dd676221948cdc217320b32c);
+            
+    
+            var marker_9769855cb859b1934d8f07afbf4506df = L.marker(
+                [48.8319256, 2.2806672],
+                {
+}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+            var div_icon_897a7259c3bf6cf0f1d401a7350f86b3 = L.divIcon({
+  "html": "\u003cdiv style=\u0027width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#ea580c;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center\u0027\u003e\u003cspan style=\u0027transform:rotate(45deg);color:#fff;font-size:15px;font-weight:700\u0027\u003e1\u003c/span\u003e\u003c/div\u003e",
+  "iconSize": [30, 30],
+  "iconAnchor": [15, 30],
+  "className": "empty",
+});
+        
+    
+            marker_9769855cb859b1934d8f07afbf4506df.bindTooltip(
+                `<div>
+                     PariSanté
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_9769855cb859b1934d8f07afbf4506df.setIcon(div_icon_897a7259c3bf6cf0f1d401a7350f86b3);
+            
+    
+            var marker_c50475743ec333bb50b2d89c2cb9a1b9 = L.marker(
+                [48.8424525, 2.3442707],
+                {
+}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+            var div_icon_e50266d9cfec41cdb96c15b8ec8d5759 = L.divIcon({
+  "html": "\u003cdiv style=\u0027width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#ea580c;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center\u0027\u003e\u003cspan style=\u0027transform:rotate(45deg);color:#fff;font-size:15px;font-weight:700\u0027\u003e2\u003c/span\u003e\u003c/div\u003e",
+  "iconSize": [30, 30],
+  "iconAnchor": [15, 30],
+  "className": "empty",
+});
+        
+    
+            marker_c50475743ec333bb50b2d89c2cb9a1b9.bindTooltip(
+                `<div>
+                     ENS Ulm
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_c50475743ec333bb50b2d89c2cb9a1b9.setIcon(div_icon_e50266d9cfec41cdb96c15b8ec8d5759);
+            
+    
+            var marker_0794762ce5d72c568c2ed07c878e3cd9 = L.marker(
+                [48.8552786, 2.3377567],
+                {
+}
+            ).addTo(map_8db463f39f69fde0085e3f9f4dc09882);
+        
+    
+            var div_icon_78be4ebe7ec73b859813aa4ba83ba1fc = L.divIcon({
+  "html": "\u003cdiv style=\u0027width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#dc2626;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center\u0027\u003e\u003cspan style=\u0027transform:rotate(45deg);color:#fff;font-size:15px;font-weight:700\u0027\u003e\u2605\u003c/span\u003e\u003c/div\u003e",
+  "iconSize": [30, 30],
+  "iconAnchor": [15, 30],
+  "className": "empty",
+});
+        
+    
+            marker_0794762ce5d72c568c2ed07c878e3cd9.bindTooltip(
+                `<div>
+                     PSL
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_0794762ce5d72c568c2ed07c878e3cd9.setIcon(div_icon_78be4ebe7ec73b859813aa4ba83ba1fc);
+            
+    
+            map_8db463f39f69fde0085e3f9f4dc09882.fitBounds(
+                [[48.8303052, 2.2716786], [48.871316, 2.3442707]],
+                {}
+            );
+        
+</script>
+</html>

@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Virtual environment
+.venv/
+venv/
+
+# Cached OpenStreetMap extracts (large, regenerated on first run)
+data/
+
+# osmnx HTTP cache
+cache/
+
+# LaTeX build artifacts (keep report.pdf and the sources)
+latex/*.aux
+latex/*.log
+latex/*.bbl
+latex/*.blg
+latex/*.out
+latex/*.toc
+latex/*.lof
+latex/*.lot
+latex/*.fls
+latex/*.fdb_latexmk
+latex/*.synctex.gz
+latex/chapters/*.aux
+
+# JetBrains IDE
+.idea/
+
+# OS
+.DS_Store

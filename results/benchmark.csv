@@ -1,0 +1,13 @@
+algorithm,mean_settled,mean_time_ms,mean_cost_km,optimal,max_rel_error
+BFS,4673.3,1.957,9.024,True,2.154667
+DFS,4746.3,2.424,130.920,True,363.896431
+Dijkstra,4710.1,6.850,5.989,True,0.000000
+Greedy(haversine),95.0,0.329,7.590,True,0.787461
+A*(haversine),881.8,2.217,5.989,True,0.000000
+ALT,286.1,1.868,5.989,True,0.000000
+ALT(active=4),361.5,1.999,5.989,True,0.000000
+Bi-Dijkstra,2900.0,5.827,5.989,True,0.000000
+Bi-ALT,234.5,0.595,5.989,True,0.000000
+Arc Flags,651.9,1.013,5.989,True,0.000000
+CH,174.9,0.796,5.989,True,0.000000
+Dijkstra(bucket),4710.3,8.342,5.989,True,0.000000

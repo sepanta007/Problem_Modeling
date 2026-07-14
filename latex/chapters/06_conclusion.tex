@@ -1,0 +1,47 @@
+\chapter{Conclusion}
+\label{ch:conclusion}
+
+Ce projet est parti d'une question simple mais exigeante : sur un réseau routier
+réel, à réponse optimale identique, jusqu'où de meilleures heuristiques et de
+meilleures structures de données peuvent-elles réduire le travail d'un calcul de
+plus court chemin ? Pour y répondre sérieusement, nous avons d'abord modélisé une
+carte OpenStreetMap de Paris en un graphe orienté pondéré, avec les choix
+d'ingénierie nécessaires pour opérer à l'échelle, puis nous avons construit une
+échelle complète d'algorithmes autour de ce même graphe.
+
+\medskip
+
+Cette échelle constitue le cœur du travail. Elle va des parcours non informés
+(BFS, DFS) et de la recherche gloutonne aux méthodes optimales fondées sur une
+heuristique, A* puis ALT, avant de dépasser les fondamentaux avec la recherche
+bidirectionnelle, les files à seaux, les Arc Flags et les Contraction
+Hierarchies. Chaque algorithme a été non seulement implémenté, mais justifié
+mathématiquement et vérifié comme rendant exactement le plus court chemin. Autour
+de ces algorithmes, nous avons mis en place un véritable dispositif expérimental :
+un banc d'essai agrégé, une étude du placement des landmarks, une étude de passage
+à l'échelle, une analyse statistique de la difficulté des requêtes, ainsi qu'un
+trajet réel à plusieurs étapes accompagné de son itinéraire détaillé, d'une carte
+interactive et d'une animation de l'exploration.
+
+\medskip
+
+Les résultats confirment la théorie de bout en bout. Ajouter de l'information, de
+la structure et du pré-calcul réduit l'exploration de plus d'un ordre de grandeur
+sans jamais sacrifier l'optimalité, tandis que les algorithmes non informés et
+glouton, placés en regard, rappellent pourquoi la pondération et l'optimalité
+comptent. Surtout, ces gains ne sont pas figés : ils s'amplifient à mesure que le
+réseau grandit. C'est là l'enseignement central du projet : la difficulté est
+l'échelle, et la réponse est d'investir une fois dans un pré-calcul pour payer
+beaucoup moins à chaque requête, un compromis d'autant plus rentable que la carte
+est grande, exactement le principe sur lequel reposent les moteurs de routage
+modernes.
+
+\medskip
+
+Plusieurs pistes prolongeraient naturellement ce travail : une implémentation
+compilée pour révéler pleinement l'avantage des méthodes hiérarchiques, la prise
+en compte de coûts dépendant du temps pour modéliser le trafic, ou encore le
+passage à un réseau de taille continentale. Au-delà des algorithmes particuliers,
+le projet illustre une idée générale et durable : face à un très grand espace
+d'états, ce n'est pas la force brute qui l'emporte, mais l'information et le
+pré-calcul judicieusement investis.

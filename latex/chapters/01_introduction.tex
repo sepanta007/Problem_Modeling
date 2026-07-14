@@ -1,0 +1,114 @@
+\chapter{Introduction}
+\label{ch:intro}
+
+Un réseau routier est, par nature, un graphe : les intersections en sont les
+sommets et les tronçons de route les arêtes, pondérées par leur longueur.
+Calculer le meilleur trajet entre deux points revient alors à chercher un plus
+court chemin dans ce graphe, l'un des problèmes les plus classiques et les plus
+utiles de l'algorithmique, résolu de manière optimale depuis 1959 par
+l'algorithme de Dijkstra.
+
+\medskip
+
+En théorie, le problème est donc « réglé ». En pratique, tout se joue sur
+l'\emph{efficacité} : une carte réelle compte des dizaines à des centaines de
+milliers d'intersections, et un moteur de routage doit répondre en quelques
+millisecondes, souvent pour un très grand nombre de requêtes. L'écart entre
+« sait-on le résoudre ? » et « sait-on le résoudre vite, à grande échelle ? » est
+précisément l'objet de ce rapport, qui construit et compare, sur des données
+routières réelles, toute une échelle d'algorithmes de plus court chemin.
+
+\section{Contexte et motivation}
+
+Trouver le plus court chemin routier entre deux points est sans doute
+l'application la plus quotidienne de l'algorithmique : chaque requête adressée à
+un GPS ou à un service de cartographie en ligne déclenche, en quelques
+millisecondes, la résolution d'un problème de plus court chemin sur un graphe
+comptant des millions d'arcs. Derrière la navigation grand public, les mêmes
+calculs sous-tendent la logistique du dernier kilomètre, les plateformes de
+transport à la demande, la planification de tournées et les services d'urgence, autant de domaines où le temps de réponse et le passage à l'échelle sont
+critiques.
+
+\medskip
+
+À cette échelle, l'algorithme de Dijkstra « pur » ne suffit plus : bien qu'il
+soit optimal, il explore une part énorme du réseau pour chaque requête, ce qui le
+rend trop lent lorsqu'un service doit traiter des milliers de requêtes par seconde
+sur un graphe continental. C'est ce constat qui a motivé, depuis les années 2000,
+toute une famille de techniques d'\emph{accélération} (heuristiques dirigées
+vers le but, recherche bidirectionnelle, pré-calcul par landmarks ou par
+raccourcis) qui rendent la \emph{même} réponse optimale en explorant une
+fraction infime du graphe. Ce sont ces techniques que le présent projet
+implémente, mesure et compare sur des données routières réelles.
+
+\section{Problème et question de recherche}
+\label{sec:question}
+
+Tous les algorithmes optimaux considérés rendent, par définition, \emph{la même}
+route la plus courte. Ce qui les distingue, c'est le \emph{travail} qu'ils
+accomplissent pour y parvenir. La question centrale du projet est donc :
+
+\begin{quote}
+\itshape
+À réponse optimale identique, dans quelle mesure une meilleure heuristique et de
+meilleures structures de données réduisent-elles le nombre de nœuds explorés et
+le temps de réponse ?
+\end{quote}
+
+La difficulté fondamentale est \textbf{l'échelle}. Une ville réelle compte de
+quelques milliers à plusieurs centaines de milliers d'intersections. La stratégie
+de base (explorer vers l'extérieur dans toutes les directions jusqu'à
+rencontrer le but) gaspille alors un travail considérable : elle visite tout un
+disque de nœuds là où la route optimale n'en traverse qu'une fine bande. Toute la
+valeur des algorithmes avancés consiste à concentrer l'exploration là où elle est
+utile, au prix d'un \emph{pré-calcul} effectué une seule fois puis amorti sur
+toutes les requêtes suivantes.
+
+\section{Objectifs et contributions}
+
+Le projet apporte les contributions suivantes :
+
+\begin{bulletlist}
+  \item \textbf{Une modélisation rigoureuse} du réseau routier réel en graphe
+        orienté pondéré (chapitre \\~\ref{ch:modelisation}), avec les choix
+        d'ingénierie (composante fortement connexe, listes d'adjacence
+        compactes) qui rendent l'expérimentation possible à l'échelle.
+  \item \textbf{Une échelle complète d'algorithmes} (chapitre~\ref{ch:algos}),
+        des fondamentaux (BFS, DFS, Dijkstra, Greedy, A*, ALT) aux techniques
+        avancées (recherche bidirectionnelle, files à seaux de Dial, landmarks
+        actifs, Arc Flags, Contraction Hierarchies), toutes décrites avec leur
+        justification mathématique.
+  \item \textbf{Une évaluation expérimentale approfondie}
+        (chapitre~\ref{ch:xp}) : un banc d'essai agrégé, une étude de l'effet du
+        placement des landmarks, une \emph{étude de passage à l'échelle}
+        démontrant que les gains croissent avec la taille du graphe, et une
+        \emph{analyse statistique} de la difficulté des requêtes.
+  \item \textbf{Une mise en perspective} (chapitre~\ref{ch:discussion}) : un
+        récapitulatif des notions mises en œuvre, un retour sur l'algorithme IDA*
+        essayé puis écarté, et un parallèle entre les landmarks d'ALT et les
+        Pattern Databases.
+\end{bulletlist}
+
+\section{Correction garantie par construction}
+\label{sec:correctness}
+
+Un point méthodologique guide tout le projet : pour que la comparaison ait un
+sens, il faut comparer des algorithmes qui rendent \emph{la même} réponse.
+Comparer le nombre de nœuds explorés par deux algorithmes n'a en effet d'intérêt
+que s'ils calculent tous deux le plus court chemin exact ; sans cette garantie,
+un algorithme pourrait « gagner » simplement en rendant une route plus courte à
+calculer mais fausse.
+
+\medskip
+
+Chaque algorithme censé être optimal est donc contrôlé, sur \emph{chaque} requête
+du banc d'essai, contre la longueur de chemin de Dijkstra pris comme référence :
+les requêtes sont tirées d'une graine fixe et sont identiques pour tous les
+algorithmes, et le harnais d'expérimentation s'interrompt à la moindre
+divergence de longueur. Les tableaux de résultats rapportent d'ailleurs l'erreur
+relative maximale observée : elle vaut exactement zéro pour tous les algorithmes
+optimaux, ce qui certifie que les écarts de performance mesurés portent bien sur
+le \emph{travail} et non sur la qualité de la réponse. Elle n'est non nulle que
+pour les algorithmes dont on sait qu'ils sacrifient l'optimalité (Greedy, BFS,
+DFS), qui sont alors analysés à part, précisément pour quantifier le prix de cet
+abandon.

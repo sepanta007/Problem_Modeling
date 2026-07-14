@@ -1,0 +1,113 @@
+\chapter{Positionnement et discussion}
+\label{ch:discussion}
+
+Ce chapitre prend du recul sur le travail réalisé : il récapitule les notions de
+plus court chemin mises en œuvre, revient sur un algorithme essayé puis écarté
+(IDA*), et met en lumière un parallèle entre les landmarks d'ALT et les Pattern
+Databases.
+
+\section{Récapitulatif des notions couvertes}
+
+Il est d'abord utile de dresser le bilan de ce qui a été traité. Le
+tableau~\ref{tab:mapping} récapitule les notions fondamentales de plus
+court chemin abordées et renvoie, pour chacune, à l'endroit du rapport qui la
+met en œuvre.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    Notion & Où elle apparaît \\
+    \midrule
+    Recherche en meilleur d'abord, espace d'états & ch.~\ref{ch:modelisation} \\
+    Parcours en largeur (BFS) / profondeur (DFS)   & \S\ref{sec:baselines}, \S\ref{sec:bench} \\
+    Greedy Best-First Search                       & \S\ref{sec:greedy} \\
+    Dijkstra                                       & \S\ref{sec:dijkstra} (référence) \\
+    A*, $f = g + h$, heuristique admissible        & \S\ref{sec:astar} \\
+    « A* généralise Dijkstra »                     & A* avec $h \equiv 0$ \\
+    Heuristique triangulaire / ALT                 & \S\ref{sec:alt} (étude principale) \\
+    Optimisations de structures (tableau de piles) & \S\ref{sec:bucket}, \S\ref{sec:bucket-result} \\
+    Landmarks actifs                               & \S\ref{sec:active}, \S\ref{sec:bench} \\
+    \bottomrule
+  \end{tabular}
+  \caption{Notions de recherche de plus court chemin et leur traitement dans le
+  projet.}
+  \label{tab:mapping}
+\end{table}
+
+À ces fondamentaux, le projet ajoute : la recherche bidirectionnelle (Dijkstra et
+ALT à potentiel moyen), les \textbf{Arc Flags} et les \textbf{Contraction
+Hierarchies}, la sélection \texttt{avoid} des landmarks, une \textbf{étude de
+passage à l'échelle} prouvant que les gains croissent avec la taille
+(\S\ref{sec:scaling}), et une \textbf{analyse statistique} de la difficulté des
+requêtes (\S\ref{sec:distribution}).
+
+\section{IDA* : implémenté, testé, puis écarté}
+\label{sec:idastar}
+
+Par souci d'honnêteté sur la démarche, signalons que l'algorithme \textbf{IDA*}
+(\emph{Iterative Deepening} A*, \citealp{korf1985ida}) a lui aussi été implémenté
+et testé pendant le projet, avant d'être écarté. IDA* est conçu pour les espaces d'états
+\emph{implicites et exponentiels} sous forte contrainte mémoire (typiquement les
+puzzles) : il remplace les listes ouverte et fermée d'A* par une succession de
+parcours en profondeur bornés par un seuil croissant sur $f = g + h$, ne gardant
+en mémoire que le chemin courant (mémoire linéaire au lieu de linéaire en nombre
+de nœuds visités).
+
+Sur un graphe routier \emph{explicite}, qui tient aisément en mémoire, ce
+compromis est contre-productif. Faute de liste fermée, IDA* \textbf{ré-explore}
+les mêmes nœuds à chaque nouveau seuil ; or, sur un graphe comportant de nombreux
+cycles et des poids non uniformes, les valeurs distinctes de $f$ sont
+innombrables, si bien que le nombre de ré-expansions explose. IDA* rend alors
+exactement la même route qu'A*, mais bien plus lentement et sans le moindre gain.
+Nous l'avons donc écarté au profit d'A* et d'ALT, qui règlent chaque nœud une
+seule fois, cohérent avec le fait que, ici, la difficulté est l'échelle du
+graphe et non la mémoire.
+
+\section{Landmarks $=$ Pattern Databases pour graphe explicite}
+\label{sec:pdb-alt}
+
+Nous terminons par un rapprochement qui éclaire la nature même d'ALT. La borne
+par landmarks, telle qu'on l'a introduite, pourrait passer pour une astuce
+propre au routage ; elle est en réalité l'instance, sur un graphe explicite,
+d'un principe général de la recherche heuristique, illustré par les
+\textbf{Pattern Databases} (PDB) utilisées pour les puzzles
+\citep{culberson1998pdb}. Le signaler n'est pas un simple parallèle décoratif :
+cela explique \emph{pourquoi} l'heuristique ALT fonctionne et la relie à une
+idée éprouvée, ce qui donne du recul sur le choix de conception.
+
+\medskip
+
+Les deux approches répondent en effet à la même idée : \emph{pré-calculer des
+distances exactes vers un sous-ensemble d'ancres, puis en déduire par relaxation
+une borne inférieure admissible}. La table~\ref{tab:pdb-alt} les met en regard.
+
+\begin{table}[htbp]
+  \centering
+  \small
+  \begin{tabular}{@{}lll@{}}
+    \toprule
+    & Pattern Database & Landmarks (ALT) \\
+    \midrule
+    Espace d'états      & implicite, exponentiel      & explicite (graphe en mémoire) \\
+    Objet pré-calculé   & distances exactes vers un état projeté & distances exactes vers $k$ nœuds \\
+    Borne admissible    & distance dans l'abstraction & inégalité triangulaire \\
+    Combinaison         & max (ou somme, additives)   & max sur les landmarks \\
+    Utilisée par        & IDA* / A*                   & A* \\
+    \bottomrule
+  \end{tabular}
+  \caption{Le même principe, deux incarnations selon la nature de l'espace d'états.}
+  \label{tab:pdb-alt}
+\end{table}
+
+Une PDB projette l'état sur un sous-problème (par exemple un sous-ensemble de
+tuiles du taquin), résout exhaustivement ce sous-problème par analyse rétrograde,
+et utilise la distance dans cette abstraction comme borne inférieure admissible.
+ALT fait l'analogue direct pour un graphe explicite : il projette la distance
+« vers $t$ » sur ce qu'en révèlent quelques ancres $L_i$, via
+$d(u,t) \ge |d(u,L_i) - d(t,L_i)|$. Dans les deux cas, on paie un pré-calcul
+unique pour obtenir une heuristique bien plus forte que l'estimation géométrique
+de base, et dans les deux cas on combine plusieurs bornes par un maximum. Cette
+correspondance montre que le projet, bien qu'il ne code pas de PDB, en incarne
+pleinement le principe, adapté à la structure de son problème.
