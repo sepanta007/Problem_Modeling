@@ -190,3 +190,10 @@ scripts/              run_multi_stop, run_benchmark, run_landmark_study,
 latex/                LaTeX report (report.tex + chapters/) -> report.pdf
 data/, results/       cached maps / generated figures (created on first run)
 ```
+
+---
+
+## 8. License
+
+This project is released under the [MIT](https://github.com/sepanta007/Problem_Modeling/blob/master/LICENSE)
+license.
